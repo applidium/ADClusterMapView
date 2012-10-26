@@ -1,0 +1,427 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		6F1715B81625CAB00042E6AA /* CDToilets.json in Resources */ = {isa = PBXBuildFile; fileRef = 6F1715B71625CAB00042E6AA /* CDToilets.json */; };
+		6F1715BF1625D1890042E6AA /* CDStreetlights.json in Resources */ = {isa = PBXBuildFile; fileRef = 6F1715BE1625D1890042E6AA /* CDStreetlights.json */; };
+		6F3C8B2A1627054A0081BF88 /* CDStreetlight.png in Resources */ = {isa = PBXBuildFile; fileRef = 6F3C8B261627054A0081BF88 /* CDStreetlight.png */; };
+		6F3C8B2B1627054A0081BF88 /* CDStreetlight@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6F3C8B271627054A0081BF88 /* CDStreetlight@2x.png */; };
+		6F3C8B2C1627054A0081BF88 /* CDStreetlightCluster.png in Resources */ = {isa = PBXBuildFile; fileRef = 6F3C8B281627054A0081BF88 /* CDStreetlightCluster.png */; };
+		6F3C8B2D1627054A0081BF88 /* CDStreetlightCluster@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6F3C8B291627054A0081BF88 /* CDStreetlightCluster@2x.png */; };
+		6F3C8B30162708B00081BF88 /* CDStreetlightsMapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F3C8B2F162708B00081BF88 /* CDStreetlightsMapViewController.m */; };
+		6F3C8B33162708CB0081BF88 /* CDToiletsMapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F3C8B32162708CB0081BF88 /* CDToiletsMapViewController.m */; };
+		6F3C8B59162718D70081BF88 /* ADMapPointAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F3C8B58162718D70081BF88 /* ADMapPointAnnotation.m */; };
+		6F3C8B70162C1A430081BF88 /* CDStreetlightItem.png in Resources */ = {isa = PBXBuildFile; fileRef = 6F3C8B6E162C1A430081BF88 /* CDStreetlightItem.png */; };
+		6F3C8B71162C1A430081BF88 /* CDStreetlightItem@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6F3C8B6F162C1A430081BF88 /* CDStreetlightItem@2x.png */; };
+		6F3C8B75162C1ABA0081BF88 /* CDToiletItem.png in Resources */ = {isa = PBXBuildFile; fileRef = 6F3C8B73162C1ABA0081BF88 /* CDToiletItem.png */; };
+		6F3C8B76162C1ABA0081BF88 /* CDToiletItem@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6F3C8B74162C1ABA0081BF88 /* CDToiletItem@2x.png */; };
+		6F3C8B7B162C1B870081BF88 /* CDToilet.png in Resources */ = {isa = PBXBuildFile; fileRef = 6F3C8B77162C1B860081BF88 /* CDToilet.png */; };
+		6F3C8B7C162C1B870081BF88 /* CDToilet@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6F3C8B78162C1B860081BF88 /* CDToilet@2x.png */; };
+		6F3C8B7D162C1B870081BF88 /* CDToiletCluster.png in Resources */ = {isa = PBXBuildFile; fileRef = 6F3C8B79162C1B860081BF88 /* CDToiletCluster.png */; };
+		6F3C8B7E162C1B870081BF88 /* CDToiletCluster@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6F3C8B7A162C1B870081BF88 /* CDToiletCluster@2x.png */; };
+		6F8000E516256BCE005D0263 /* ADClusterAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F8000E016256BCE005D0263 /* ADClusterAnnotation.m */; };
+		6F8000E616256BCE005D0263 /* ADClusterMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F8000E216256BCE005D0263 /* ADClusterMapView.m */; };
+		6F8000E716256BCE005D0263 /* ADMapCluster.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F8000E416256BCE005D0263 /* ADMapCluster.m */; };
+		6F8000EA16256C26005D0263 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F8000E816256C1B005D0263 /* MapKit.framework */; };
+		6F8000EC16256C6C005D0263 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F8000EB16256C6C005D0263 /* CoreLocation.framework */; };
+		6F8000F016256D7C005D0263 /* ADClusterableAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F8000EE16256D46005D0263 /* ADClusterableAnnotation.m */; };
+		6F8000F516257E9C005D0263 /* CDIcon~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 6F8000F116257E9C005D0263 /* CDIcon~ipad.png */; };
+		6F8000F616257E9C005D0263 /* CDIcon~ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6F8000F216257E9C005D0263 /* CDIcon~ipad@2x.png */; };
+		6F8000F716257E9C005D0263 /* CDIcon~iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = 6F8000F316257E9C005D0263 /* CDIcon~iphone.png */; };
+		6F8000F816257E9C005D0263 /* CDIcon~iphone@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6F8000F416257E9C005D0263 /* CDIcon~iphone@2x.png */; };
+		6F8FE99B16249223001A0309 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F8FE99A16249223001A0309 /* UIKit.framework */; };
+		6F8FE99D16249223001A0309 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F8FE99C16249223001A0309 /* Foundation.framework */; };
+		6F8FE99F16249223001A0309 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F8FE99E16249223001A0309 /* CoreGraphics.framework */; };
+		6F8FE9CE1624942E001A0309 /* CDMapViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6F8FE9C91624942E001A0309 /* CDMapViewController.xib */; };
+		6F8FE9D01624942E001A0309 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6F8FE9CB1624942E001A0309 /* Default-568h@2x.png */; };
+		6F8FE9D11624942E001A0309 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 6F8FE9CC1624942E001A0309 /* Default.png */; };
+		6F8FE9D21624942E001A0309 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6F8FE9CD1624942E001A0309 /* Default@2x.png */; };
+		6F8FE9DE1624966A001A0309 /* CDAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F8FE9C616249428001A0309 /* CDAppDelegate.m */; };
+		6F8FE9DF1624966C001A0309 /* CDMapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F8FE9C816249428001A0309 /* CDMapViewController.m */; };
+		6F8FE9E4162496B0001A0309 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F8FE9E3162496AE001A0309 /* main.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		6F1715B71625CAB00042E6AA /* CDToilets.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = CDToilets.json; path = Resources/CDToilets.json; sourceTree = SOURCE_ROOT; };
+		6F1715BE1625D1890042E6AA /* CDStreetlights.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = CDStreetlights.json; path = Resources/CDStreetlights.json; sourceTree = SOURCE_ROOT; };
+		6F3C8B261627054A0081BF88 /* CDStreetlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = CDStreetlight.png; path = Resources/CDStreetlight.png; sourceTree = SOURCE_ROOT; };
+		6F3C8B271627054A0081BF88 /* CDStreetlight@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "CDStreetlight@2x.png"; path = "Resources/CDStreetlight@2x.png"; sourceTree = SOURCE_ROOT; };
+		6F3C8B281627054A0081BF88 /* CDStreetlightCluster.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = CDStreetlightCluster.png; path = Resources/CDStreetlightCluster.png; sourceTree = SOURCE_ROOT; };
+		6F3C8B291627054A0081BF88 /* CDStreetlightCluster@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "CDStreetlightCluster@2x.png"; path = "Resources/CDStreetlightCluster@2x.png"; sourceTree = SOURCE_ROOT; };
+		6F3C8B2E162708B00081BF88 /* CDStreetlightsMapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CDStreetlightsMapViewController.h; path = Classes/CDStreetlightsMapViewController.h; sourceTree = SOURCE_ROOT; };
+		6F3C8B2F162708B00081BF88 /* CDStreetlightsMapViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CDStreetlightsMapViewController.m; path = Classes/CDStreetlightsMapViewController.m; sourceTree = SOURCE_ROOT; };
+		6F3C8B31162708CB0081BF88 /* CDToiletsMapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CDToiletsMapViewController.h; path = Classes/CDToiletsMapViewController.h; sourceTree = SOURCE_ROOT; };
+		6F3C8B32162708CB0081BF88 /* CDToiletsMapViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CDToiletsMapViewController.m; path = Classes/CDToiletsMapViewController.m; sourceTree = SOURCE_ROOT; };
+		6F3C8B57162718D70081BF88 /* ADMapPointAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADMapPointAnnotation.h; sourceTree = "<group>"; };
+		6F3C8B58162718D70081BF88 /* ADMapPointAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADMapPointAnnotation.m; sourceTree = "<group>"; };
+		6F3C8B6E162C1A430081BF88 /* CDStreetlightItem.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = CDStreetlightItem.png; path = Resources/CDStreetlightItem.png; sourceTree = SOURCE_ROOT; };
+		6F3C8B6F162C1A430081BF88 /* CDStreetlightItem@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "CDStreetlightItem@2x.png"; path = "Resources/CDStreetlightItem@2x.png"; sourceTree = SOURCE_ROOT; };
+		6F3C8B73162C1ABA0081BF88 /* CDToiletItem.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = CDToiletItem.png; path = Resources/CDToiletItem.png; sourceTree = SOURCE_ROOT; };
+		6F3C8B74162C1ABA0081BF88 /* CDToiletItem@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "CDToiletItem@2x.png"; path = "Resources/CDToiletItem@2x.png"; sourceTree = SOURCE_ROOT; };
+		6F3C8B77162C1B860081BF88 /* CDToilet.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = CDToilet.png; path = Resources/CDToilet.png; sourceTree = SOURCE_ROOT; };
+		6F3C8B78162C1B860081BF88 /* CDToilet@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "CDToilet@2x.png"; path = "Resources/CDToilet@2x.png"; sourceTree = SOURCE_ROOT; };
+		6F3C8B79162C1B860081BF88 /* CDToiletCluster.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = CDToiletCluster.png; path = Resources/CDToiletCluster.png; sourceTree = SOURCE_ROOT; };
+		6F3C8B7A162C1B870081BF88 /* CDToiletCluster@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "CDToiletCluster@2x.png"; path = "Resources/CDToiletCluster@2x.png"; sourceTree = SOURCE_ROOT; };
+		6F8000C0162569E5005D0263 /* ClusterDemo-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ClusterDemo-Info.plist"; sourceTree = SOURCE_ROOT; };
+		6F8000C1162569E5005D0263 /* ClusterDemo-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ClusterDemo-Prefix.pch"; sourceTree = SOURCE_ROOT; };
+		6F8000DF16256BCE005D0263 /* ADClusterAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADClusterAnnotation.h; sourceTree = "<group>"; };
+		6F8000E016256BCE005D0263 /* ADClusterAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADClusterAnnotation.m; sourceTree = "<group>"; };
+		6F8000E116256BCE005D0263 /* ADClusterMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADClusterMapView.h; sourceTree = "<group>"; };
+		6F8000E216256BCE005D0263 /* ADClusterMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADClusterMapView.m; sourceTree = "<group>"; };
+		6F8000E316256BCE005D0263 /* ADMapCluster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADMapCluster.h; sourceTree = "<group>"; };
+		6F8000E416256BCE005D0263 /* ADMapCluster.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADMapCluster.m; sourceTree = "<group>"; };
+		6F8000E816256C1B005D0263 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		6F8000EB16256C6C005D0263 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		6F8000ED16256D46005D0263 /* ADClusterableAnnotation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ADClusterableAnnotation.h; path = Classes/ADClusterableAnnotation.h; sourceTree = SOURCE_ROOT; };
+		6F8000EE16256D46005D0263 /* ADClusterableAnnotation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = ADClusterableAnnotation.m; path = Classes/ADClusterableAnnotation.m; sourceTree = SOURCE_ROOT; };
+		6F8000F116257E9C005D0263 /* CDIcon~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "CDIcon~ipad.png"; path = "Resources/CDIcon~ipad.png"; sourceTree = SOURCE_ROOT; };
+		6F8000F216257E9C005D0263 /* CDIcon~ipad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "CDIcon~ipad@2x.png"; path = "Resources/CDIcon~ipad@2x.png"; sourceTree = SOURCE_ROOT; };
+		6F8000F316257E9C005D0263 /* CDIcon~iphone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "CDIcon~iphone.png"; path = "Resources/CDIcon~iphone.png"; sourceTree = SOURCE_ROOT; };
+		6F8000F416257E9C005D0263 /* CDIcon~iphone@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "CDIcon~iphone@2x.png"; path = "Resources/CDIcon~iphone@2x.png"; sourceTree = SOURCE_ROOT; };
+		6F8FE99616249223001A0309 /* ClusterDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClusterDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6F8FE99A16249223001A0309 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		6F8FE99C16249223001A0309 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		6F8FE99E16249223001A0309 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		6F8FE9C516249428001A0309 /* CDAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CDAppDelegate.h; path = Classes/CDAppDelegate.h; sourceTree = SOURCE_ROOT; };
+		6F8FE9C616249428001A0309 /* CDAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = CDAppDelegate.m; path = Classes/CDAppDelegate.m; sourceTree = SOURCE_ROOT; };
+		6F8FE9C716249428001A0309 /* CDMapViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CDMapViewController.h; path = Classes/CDMapViewController.h; sourceTree = SOURCE_ROOT; };
+		6F8FE9C816249428001A0309 /* CDMapViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = CDMapViewController.m; path = Classes/CDMapViewController.m; sourceTree = SOURCE_ROOT; };
+		6F8FE9C91624942E001A0309 /* CDMapViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = CDMapViewController.xib; path = Resources/CDMapViewController.xib; sourceTree = SOURCE_ROOT; };
+		6F8FE9CB1624942E001A0309 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "Resources/Default-568h@2x.png"; sourceTree = SOURCE_ROOT; };
+		6F8FE9CC1624942E001A0309 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = Resources/Default.png; sourceTree = SOURCE_ROOT; };
+		6F8FE9CD1624942E001A0309 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default@2x.png"; path = "Resources/Default@2x.png"; sourceTree = SOURCE_ROOT; };
+		6F8FE9E3162496AE001A0309 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6F8FE99316249223001A0309 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6F8000EA16256C26005D0263 /* MapKit.framework in Frameworks */,
+				6F8000EC16256C6C005D0263 /* CoreLocation.framework in Frameworks */,
+				6F8FE99B16249223001A0309 /* UIKit.framework in Frameworks */,
+				6F8FE99D16249223001A0309 /* Foundation.framework in Frameworks */,
+				6F8FE99F16249223001A0309 /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6F8000DE16256BCE005D0263 /* ADClusterMapView */ = {
+			isa = PBXGroup;
+			children = (
+				6F8000DF16256BCE005D0263 /* ADClusterAnnotation.h */,
+				6F8000E016256BCE005D0263 /* ADClusterAnnotation.m */,
+				6F8000E116256BCE005D0263 /* ADClusterMapView.h */,
+				6F8000E216256BCE005D0263 /* ADClusterMapView.m */,
+				6F8000E316256BCE005D0263 /* ADMapCluster.h */,
+				6F8000E416256BCE005D0263 /* ADMapCluster.m */,
+				6F3C8B57162718D70081BF88 /* ADMapPointAnnotation.h */,
+				6F3C8B58162718D70081BF88 /* ADMapPointAnnotation.m */,
+			);
+			name = ADClusterMapView;
+			path = ../ADClusterMapView;
+			sourceTree = "<group>";
+		};
+		6F8FE98B16249223001A0309 = {
+			isa = PBXGroup;
+			children = (
+				6F8000DE16256BCE005D0263 /* ADClusterMapView */,
+				6F8FE9A016249223001A0309 /* ClusterDemo */,
+				6F8FE99916249223001A0309 /* Frameworks */,
+				6F8FE99716249223001A0309 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6F8FE99716249223001A0309 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6F8FE99616249223001A0309 /* ClusterDemo.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6F8FE99916249223001A0309 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6F8000EB16256C6C005D0263 /* CoreLocation.framework */,
+				6F8000E816256C1B005D0263 /* MapKit.framework */,
+				6F8FE99A16249223001A0309 /* UIKit.framework */,
+				6F8FE99C16249223001A0309 /* Foundation.framework */,
+				6F8FE99E16249223001A0309 /* CoreGraphics.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		6F8FE9A016249223001A0309 /* ClusterDemo */ = {
+			isa = PBXGroup;
+			children = (
+				6F8FE9C016249409001A0309 /* Classes */,
+				6F8FE9C11624940E001A0309 /* Resources */,
+				6F8FE9A116249223001A0309 /* Supporting Files */,
+			);
+			path = ClusterDemo;
+			sourceTree = "<group>";
+		};
+		6F8FE9A116249223001A0309 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				6F8000C0162569E5005D0263 /* ClusterDemo-Info.plist */,
+				6F8000C1162569E5005D0263 /* ClusterDemo-Prefix.pch */,
+				6F8FE9E3162496AE001A0309 /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		6F8FE9C016249409001A0309 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				6F8FE9C516249428001A0309 /* CDAppDelegate.h */,
+				6F8FE9C616249428001A0309 /* CDAppDelegate.m */,
+				6F8FE9C716249428001A0309 /* CDMapViewController.h */,
+				6F8FE9C816249428001A0309 /* CDMapViewController.m */,
+				6F8000ED16256D46005D0263 /* ADClusterableAnnotation.h */,
+				6F8000EE16256D46005D0263 /* ADClusterableAnnotation.m */,
+				6F3C8B2E162708B00081BF88 /* CDStreetlightsMapViewController.h */,
+				6F3C8B2F162708B00081BF88 /* CDStreetlightsMapViewController.m */,
+				6F3C8B31162708CB0081BF88 /* CDToiletsMapViewController.h */,
+				6F3C8B32162708CB0081BF88 /* CDToiletsMapViewController.m */,
+			);
+			name = Classes;
+			sourceTree = "<group>";
+		};
+		6F8FE9C11624940E001A0309 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				6F1715BE1625D1890042E6AA /* CDStreetlights.json */,
+				6F1715B71625CAB00042E6AA /* CDToilets.json */,
+				6F3C8B77162C1B860081BF88 /* CDToilet.png */,
+				6F3C8B78162C1B860081BF88 /* CDToilet@2x.png */,
+				6F3C8B79162C1B860081BF88 /* CDToiletCluster.png */,
+				6F3C8B7A162C1B870081BF88 /* CDToiletCluster@2x.png */,
+				6F3C8B73162C1ABA0081BF88 /* CDToiletItem.png */,
+				6F3C8B74162C1ABA0081BF88 /* CDToiletItem@2x.png */,
+				6F3C8B261627054A0081BF88 /* CDStreetlight.png */,
+				6F3C8B271627054A0081BF88 /* CDStreetlight@2x.png */,
+				6F3C8B281627054A0081BF88 /* CDStreetlightCluster.png */,
+				6F3C8B291627054A0081BF88 /* CDStreetlightCluster@2x.png */,
+				6F3C8B6E162C1A430081BF88 /* CDStreetlightItem.png */,
+				6F3C8B6F162C1A430081BF88 /* CDStreetlightItem@2x.png */,
+				6F8000F116257E9C005D0263 /* CDIcon~ipad.png */,
+				6F8000F216257E9C005D0263 /* CDIcon~ipad@2x.png */,
+				6F8000F316257E9C005D0263 /* CDIcon~iphone.png */,
+				6F8000F416257E9C005D0263 /* CDIcon~iphone@2x.png */,
+				6F8FE9C91624942E001A0309 /* CDMapViewController.xib */,
+				6F8FE9CB1624942E001A0309 /* Default-568h@2x.png */,
+				6F8FE9CC1624942E001A0309 /* Default.png */,
+				6F8FE9CD1624942E001A0309 /* Default@2x.png */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6F8FE99516249223001A0309 /* ClusterDemo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6F8FE9BD16249223001A0309 /* Build configuration list for PBXNativeTarget "ClusterDemo" */;
+			buildPhases = (
+				6F8FE99216249223001A0309 /* Sources */,
+				6F8FE99316249223001A0309 /* Frameworks */,
+				6F8FE99416249223001A0309 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ClusterDemo;
+			productName = ClusterDemo;
+			productReference = 6F8FE99616249223001A0309 /* ClusterDemo.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6F8FE98D16249223001A0309 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = CD;
+				LastUpgradeCheck = 0450;
+				ORGANIZATIONNAME = Applidium;
+			};
+			buildConfigurationList = 6F8FE99016249223001A0309 /* Build configuration list for PBXProject "ClusterDemo" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 6F8FE98B16249223001A0309;
+			productRefGroup = 6F8FE99716249223001A0309 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6F8FE99516249223001A0309 /* ClusterDemo */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6F8FE99416249223001A0309 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6F8FE9CE1624942E001A0309 /* CDMapViewController.xib in Resources */,
+				6F8FE9D01624942E001A0309 /* Default-568h@2x.png in Resources */,
+				6F8FE9D11624942E001A0309 /* Default.png in Resources */,
+				6F8FE9D21624942E001A0309 /* Default@2x.png in Resources */,
+				6F8000F516257E9C005D0263 /* CDIcon~ipad.png in Resources */,
+				6F8000F616257E9C005D0263 /* CDIcon~ipad@2x.png in Resources */,
+				6F8000F716257E9C005D0263 /* CDIcon~iphone.png in Resources */,
+				6F8000F816257E9C005D0263 /* CDIcon~iphone@2x.png in Resources */,
+				6F1715B81625CAB00042E6AA /* CDToilets.json in Resources */,
+				6F1715BF1625D1890042E6AA /* CDStreetlights.json in Resources */,
+				6F3C8B2A1627054A0081BF88 /* CDStreetlight.png in Resources */,
+				6F3C8B2B1627054A0081BF88 /* CDStreetlight@2x.png in Resources */,
+				6F3C8B2C1627054A0081BF88 /* CDStreetlightCluster.png in Resources */,
+				6F3C8B2D1627054A0081BF88 /* CDStreetlightCluster@2x.png in Resources */,
+				6F3C8B70162C1A430081BF88 /* CDStreetlightItem.png in Resources */,
+				6F3C8B71162C1A430081BF88 /* CDStreetlightItem@2x.png in Resources */,
+				6F3C8B75162C1ABA0081BF88 /* CDToiletItem.png in Resources */,
+				6F3C8B76162C1ABA0081BF88 /* CDToiletItem@2x.png in Resources */,
+				6F3C8B7B162C1B870081BF88 /* CDToilet.png in Resources */,
+				6F3C8B7C162C1B870081BF88 /* CDToilet@2x.png in Resources */,
+				6F3C8B7D162C1B870081BF88 /* CDToiletCluster.png in Resources */,
+				6F3C8B7E162C1B870081BF88 /* CDToiletCluster@2x.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6F8FE99216249223001A0309 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6F8FE9E4162496B0001A0309 /* main.m in Sources */,
+				6F8FE9DE1624966A001A0309 /* CDAppDelegate.m in Sources */,
+				6F8FE9DF1624966C001A0309 /* CDMapViewController.m in Sources */,
+				6F8000F016256D7C005D0263 /* ADClusterableAnnotation.m in Sources */,
+				6F8000E516256BCE005D0263 /* ADClusterAnnotation.m in Sources */,
+				6F8000E616256BCE005D0263 /* ADClusterMapView.m in Sources */,
+				6F8000E716256BCE005D0263 /* ADMapCluster.m in Sources */,
+				6F3C8B30162708B00081BF88 /* CDStreetlightsMapViewController.m in Sources */,
+				6F3C8B33162708CB0081BF88 /* CDToiletsMapViewController.m in Sources */,
+				6F3C8B59162718D70081BF88 /* ADMapPointAnnotation.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		6F8FE9BB16249223001A0309 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		6F8FE9BC16249223001A0309 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		6F8FE9BE16249223001A0309 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "ClusterDemo-Prefix.pch";
+				INFOPLIST_FILE = "$(SRCROOT)/ClusterDemo-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				PRODUCT_NAME = ClusterDemo;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		6F8FE9BF16249223001A0309 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "ClusterDemo-Prefix.pch";
+				INFOPLIST_FILE = "$(SRCROOT)/ClusterDemo-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				PRODUCT_NAME = ClusterDemo;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6F8FE99016249223001A0309 /* Build configuration list for PBXProject "ClusterDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6F8FE9BB16249223001A0309 /* Debug */,
+				6F8FE9BC16249223001A0309 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6F8FE9BD16249223001A0309 /* Build configuration list for PBXNativeTarget "ClusterDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6F8FE9BE16249223001A0309 /* Debug */,
+				6F8FE9BF16249223001A0309 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6F8FE98D16249223001A0309 /* Project object */;
+}
