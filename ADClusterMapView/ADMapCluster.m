@@ -20,6 +20,8 @@
 @implementation ADMapCluster
 @synthesize clusterCoordinate = _clusterCoordinate;
 @synthesize annotation = _annotation;
+@synthesize depth = _depth;
+
 - (id)initWithAnnotations:(NSArray *)annotations atDepth:(NSInteger)depth inMapRect:(MKMapRect)mapRect gamma:(double)gamma clusterTitle:(NSString *)clusterTitle {
     self = [super init];
     if (self) {

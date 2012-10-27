@@ -12,6 +12,7 @@
 #import "CDStreetlightsMapViewController.h"
 
 @implementation CDAppDelegate
+@synthesize window = _window;
 
 - (void)dealloc {
     [_window release];
