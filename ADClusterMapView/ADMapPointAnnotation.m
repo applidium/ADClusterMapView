@@ -9,6 +9,9 @@
 #import "ADMapPointAnnotation.h"
 
 @implementation ADMapPointAnnotation
+@synthesize mapPoint = _mapPoint;
+@synthesize annotation = _annotation;
+
 - (id)initWithAnnotation:(id<MKAnnotation>)annotation {
     self = [super init];
     if (self) {
