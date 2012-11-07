@@ -77,6 +77,7 @@
         }
         [_rootMapCluster release];
         _rootMapCluster = [[ADMapCluster rootClusterForAnnotations:mapPointAnnotations gamma:gamma clusterTitle:clusterTitle] retain];
+        [mapPointAnnotations release];
         dispatch_async(dispatch_get_main_queue(), ^{
             [self _clusterInMapRect:self.visibleMapRect];
             if ([_secondaryDelegate respondsToSelector:@selector(mapViewDidFinishClustering:)]) {
