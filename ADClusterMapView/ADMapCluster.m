@@ -307,7 +307,7 @@
 }
 
 - (BOOL)isRootClusterForAnnotation:(id<MKAnnotation>)annotation {
-    return _annotation == annotation || [_leftChild isRootClusterForAnnotation:annotation] || [_rightChild isRootClusterForAnnotation:annotation];
+    return _annotation.annotation == annotation || [_leftChild isRootClusterForAnnotation:annotation] || [_rightChild isRootClusterForAnnotation:annotation];
 }
 
 - (NSString *)title {
