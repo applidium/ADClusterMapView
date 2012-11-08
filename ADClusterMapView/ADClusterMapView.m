@@ -141,7 +141,7 @@
 
 - (void)animationDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context {
     for (ADClusterAnnotation * annotation in self.annotations) {
-        if (![annotation isKindOfClass:[MKUserLocation class]]) {
+        if ([annotation isKindOfClass:[ADClusterAnnotation class]]) {
             if (annotation.shouldBeRemovedAfterAnimation) {
                 [annotation reset];
             }
@@ -278,7 +278,7 @@
     for (ADMapCluster * cluster in clustersToShowOnMap) {
         BOOL didAlreadyFindAChild = NO;
         for (ADClusterAnnotation * annotation in self.annotations) {
-            if (![annotation isKindOfClass:[MKUserLocation class]]) {
+            if ([annotation isKindOfClass:[ADClusterAnnotation class]]) {
                 if (annotation.cluster && ![annotation isKindOfClass:[MKUserLocation class]]) {
                     if ([cluster isAncestorOf:annotation.cluster]) {
                         if (annotation.type == ADClusterAnnotationTypeLeaf) { // replace this annotation by a cluster one
