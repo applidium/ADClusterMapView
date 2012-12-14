@@ -15,7 +15,7 @@
     ADMapCluster *         _leftChild;
     ADMapCluster *         _rightChild;
     MKMapRect              _mapRect;
-    id<MKAnnotation>       _annotation;
+    ADMapPointAnnotation * _annotation;
     NSString *             _clusterTitle;
     NSInteger              _depth;
 }

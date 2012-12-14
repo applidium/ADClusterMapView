@@ -20,6 +20,8 @@
 @implementation ADMapCluster
 @synthesize clusterCoordinate = _clusterCoordinate;
 @synthesize annotation = _annotation;
+@synthesize depth = _depth;
+
 - (id)initWithAnnotations:(NSArray *)annotations atDepth:(NSInteger)depth inMapRect:(MKMapRect)mapRect gamma:(double)gamma clusterTitle:(NSString *)clusterTitle {
     self = [super init];
     if (self) {
@@ -305,7 +307,7 @@
 }
 
 - (BOOL)isRootClusterForAnnotation:(id<MKAnnotation>)annotation {
-    return _annotation == annotation || [_leftChild isRootClusterForAnnotation:annotation] || [_rightChild isRootClusterForAnnotation:annotation];
+    return _annotation.annotation == annotation || [_leftChild isRootClusterForAnnotation:annotation] || [_rightChild isRootClusterForAnnotation:annotation];
 }
 
 - (NSString *)title {
