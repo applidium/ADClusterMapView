@@ -163,7 +163,12 @@
 	}
     // only leaf clusters have annotations
     if (((ADClusterAnnotation *)annotation).type == ADClusterAnnotationTypeLeaf || ![_secondaryDelegate respondsToSelector:@selector(mapView:viewForClusterAnnotation:)]) {
-        return [_secondaryDelegate mapView:self viewForAnnotation:annotation];
+        if ([_secondaryDelegate respondsToSelector:@selector(mapView:viewForAnnotation:)]) {
+            return [_secondaryDelegate mapView:self viewForAnnotation:annotation];
+        }
+        else {
+            return nil;
+        }
     } else {
         return [_secondaryDelegate mapView:self viewForClusterAnnotation:annotation];
     }
