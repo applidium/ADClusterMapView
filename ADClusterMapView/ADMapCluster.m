@@ -324,20 +324,12 @@
 }
 
 - (NSString *)subtitle {
-    if (self.showSubtitle) {
-        if (!self.annotation) {
-            return [[self namesOfChildren] componentsJoinedByString:@", "];
-        } else {
-            if ([self.annotation.annotation respondsToSelector:@selector(subtitle)]) {
-                return self.annotation.annotation.subtitle;
-            } else {
-                return nil;
-            }
-        }
+    if (!self.annotation && self.showSubtitle) {
+        return [[self namesOfChildren] componentsJoinedByString:@", "];
+    } else if ([self.annotation.annotation respondsToSelector:@selector(subtitle)]) {
+        return self.annotation.annotation.subtitle;
     }
-    else {
-        return nil;
-    }
+    return nil;
 }
 
 - (NSInteger)numberOfChildren {
