@@ -76,7 +76,15 @@
             [mapPointAnnotation release];
         }
         [_rootMapCluster release];
-        _rootMapCluster = [[ADMapCluster rootClusterForAnnotations:mapPointAnnotations gamma:gamma clusterTitle:clusterTitle] retain];
+        
+        // Setting visibility of cluster annotations subtitle (defaults to YES)
+        BOOL shouldShowSubtitle = YES;
+        if ([_secondaryDelegate respondsToSelector:@selector(shouldShowSubtitleForClusterAnnotationsInMapView:)]) {
+            shouldShowSubtitle = [_secondaryDelegate shouldShowSubtitleForClusterAnnotationsInMapView:self];
+        }
+        
+        _rootMapCluster = [[ADMapCluster rootClusterForAnnotations:mapPointAnnotations gamma:gamma clusterTitle:clusterTitle showSubtitle:shouldShowSubtitle] retain];
+        
         [mapPointAnnotations release];
         dispatch_async(dispatch_get_main_queue(), ^{
             [self _clusterInMapRect:self.visibleMapRect];

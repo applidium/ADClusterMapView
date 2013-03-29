@@ -16,6 +16,7 @@
 @optional
 - (NSInteger)numberOfClustersInMapView:(ADClusterMapView *)mapView; // default: 32
 - (MKAnnotationView *)mapView:(ADClusterMapView *)mapView viewForClusterAnnotation:(id <MKAnnotation>)annotation; // default: same as returned by mapView:viewForAnnotation:
+- (BOOL)shouldShowSubtitleForClusterAnnotationsInMapView:(ADClusterMapView *)mapView; // default: YES
 - (double)clusterDiscriminationPowerForMapView:(ADClusterMapView *)mapView; // This parameter emphasize the discrimination of annotations which are far away from the center of mass. default: 1.0 (no discrimination applied)
 - (NSString *)clusterTitleForMapView:(ADClusterMapView *)mapView; // default : @"%d elements"
 - (void)clusterAnimationDidStopForMapView:(ADClusterMapView *)mapView;
