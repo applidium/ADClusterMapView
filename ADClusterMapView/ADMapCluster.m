@@ -22,12 +22,13 @@
 @synthesize annotation = _annotation;
 @synthesize depth = _depth;
 
-- (id)initWithAnnotations:(NSArray *)annotations atDepth:(NSInteger)depth inMapRect:(MKMapRect)mapRect gamma:(double)gamma clusterTitle:(NSString *)clusterTitle {
+- (id)initWithAnnotations:(NSArray *)annotations atDepth:(NSInteger)depth inMapRect:(MKMapRect)mapRect gamma:(double)gamma clusterTitle:(NSString *)clusterTitle showSubtitle:(BOOL)showSubtitle {
     self = [super init];
     if (self) {
         _depth = depth;
         _mapRect = mapRect;
         _clusterTitle = [clusterTitle retain];
+        _showSubtitle = showSubtitle;
         if (annotations.count == 0) {
             _leftChild = nil;
             _rightChild = nil;
@@ -189,8 +190,8 @@
             
             _clusterCoordinate = MKCoordinateForMapPoint(MKMapPointMake(XMean, YMean));
             
-            _leftChild = [[ADMapCluster alloc] initWithAnnotations:leftAnnotations atDepth:depth+1 inMapRect:leftMapRect gamma:gamma clusterTitle:clusterTitle];
-            _rightChild = [[ADMapCluster alloc] initWithAnnotations:rightAnnotations atDepth:depth+1 inMapRect:rightMapRect gamma:gamma clusterTitle:clusterTitle];
+            _leftChild = [[ADMapCluster alloc] initWithAnnotations:leftAnnotations atDepth:depth+1 inMapRect:leftMapRect gamma:gamma clusterTitle:clusterTitle showSubtitle:showSubtitle];
+            _rightChild = [[ADMapCluster alloc] initWithAnnotations:rightAnnotations atDepth:depth+1 inMapRect:rightMapRect gamma:gamma clusterTitle:clusterTitle showSubtitle:showSubtitle];
             
             [leftAnnotations release];
             [rightAnnotations release];
@@ -207,7 +208,7 @@
     [super dealloc];
 }
 
-+ (ADMapCluster *)rootClusterForAnnotations:(NSArray *)initialAnnotations gamma:(double)gamma clusterTitle:(NSString *)clusterTitle {
++ (ADMapCluster *)rootClusterForAnnotations:(NSArray *)initialAnnotations gamma:(double)gamma clusterTitle:(NSString *)clusterTitle showSubtitle:(BOOL)showSubtitle {
     // KDTree
     
     MKMapRect boundaries = MKMapRectWorld;
@@ -231,7 +232,7 @@
     }
     
     NSLog(@"Computing KD-tree...");
-    ADMapCluster * cluster = [[ADMapCluster alloc] initWithAnnotations:initialAnnotations atDepth:0 inMapRect:boundaries gamma:gamma clusterTitle:clusterTitle];
+    ADMapCluster * cluster = [[ADMapCluster alloc] initWithAnnotations:initialAnnotations atDepth:0 inMapRect:boundaries gamma:gamma clusterTitle:clusterTitle showSubtitle:showSubtitle];
     NSLog(@"Computation done !");
     return [cluster autorelease];
 }
@@ -323,14 +324,19 @@
 }
 
 - (NSString *)subtitle {
-    if (!self.annotation) {
-        return [[self namesOfChildren] componentsJoinedByString:@", "];
-    } else {
-        if ([self.annotation.annotation respondsToSelector:@selector(subtitle)]) {
-            return self.annotation.annotation.subtitle;
+    if (self.showSubtitle) {
+        if (!self.annotation) {
+            return [[self namesOfChildren] componentsJoinedByString:@", "];
         } else {
-            return nil;
+            if ([self.annotation.annotation respondsToSelector:@selector(subtitle)]) {
+                return self.annotation.annotation.subtitle;
+            } else {
+                return nil;
+            }
         }
+    }
+    else {
+        return nil;
     }
 }
 

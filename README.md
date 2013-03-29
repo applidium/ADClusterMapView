@@ -32,6 +32,12 @@ We provide you with a few optional methods that you may want to add to your `ADC
 - (NSString *)clusterTitleForMapView:(ADClusterMapView *)mapView; // default : @"%d elements"
 ```
 
+### Set visibility for cluster annotation's subtitle
+
+```objective-c
+- (BOOL)shouldShowSubtitleForClusterAnnotationsInMapView:(ADClusterMapView *)mapView; // default: YES
+```
+
 ### Disminish outliers weight
 
 ```objective-c
