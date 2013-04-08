@@ -39,7 +39,11 @@
 }
 
 - (void)setAnnotations:(NSArray *)annotations {
-    [self removeAnnotations:self.annotations];
+    NSPredicate * predicate = [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary * bindings) {
+        return ![evaluatedObject isKindOfClass: [MKUserLocation class]];
+    }];
+    NSArray * annotationsExcludingUserLocation = [self.annotations filteredArrayUsingPredicate:predicate];
+    [self removeAnnotations:annotationsExcludingUserLocation];
     NSInteger numberOfAnnotationsInPool = 2 * [self _numberOfClusters]; // We manage a pool of annotations. In case we have N splits and N joins in a single animation we have to double up the actual number of annotations that belongs to the pool.
     [_singleAnnotationsPool release];
     _singleAnnotationsPool = [[NSMutableArray alloc] initWithCapacity: numberOfAnnotationsInPool];
@@ -167,7 +171,10 @@
 #pragma mark - MKMapViewDelegate
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation {
     if ([annotation isKindOfClass:[MKUserLocation class]]) {
-		return nil;
+        if ([_secondaryDelegate respondsToSelector:@selector(mapView:viewForAnnotation:)])
+            return [_secondaryDelegate mapView:self viewForAnnotation:annotation];
+        else
+            return nil;
 	}
     // only leaf clusters have annotations
     if (((ADClusterAnnotation *)annotation).type == ADClusterAnnotationTypeLeaf || ![_secondaryDelegate respondsToSelector:@selector(mapView:viewForClusterAnnotation:)]) {
