@@ -20,16 +20,11 @@
 - (id)initWithDictionary:(NSDictionary *)dictionary {
     self = [super init];
     if (self) {
-        _name = [[dictionary objectForKey:@"name"] retain];
-        NSDictionary * coordinateDictionary = [dictionary objectForKey:@"coordinates"];
-        self.coordinate = CLLocationCoordinate2DMake([[coordinateDictionary objectForKey:@"latitude"] doubleValue], [[coordinateDictionary objectForKey:@"longitude"] doubleValue]);
+        _name = dictionary[@"name"];
+        NSDictionary * coordinateDictionary = dictionary[@"coordinates"];
+        self.coordinate = CLLocationCoordinate2DMake([coordinateDictionary[@"latitude"] doubleValue], [coordinateDictionary[@"longitude"] doubleValue]);
     }
     return self;
-}
-
-- (void)dealloc {
-    [_name release], _name = nil;
-    [super dealloc];
 }
 
 - (NSString *)title {

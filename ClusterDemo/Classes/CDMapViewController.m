@@ -14,13 +14,6 @@
 @implementation CDMapViewController
 @synthesize mapView = _mapView;
 
-#pragma mark - NSObject
-
-- (void)dealloc {
-    [_mapView release];
-    [super dealloc];
-}
-
 #pragma mark - UIViewController
 
 - (void)viewDidLoad {
@@ -35,7 +28,6 @@
         for (NSDictionary * annotationDictionary in [NSJSONSerialization JSONObjectWithData:JSONData options:kNilOptions error:NULL]) {
             ADClusterableAnnotation * annotation = [[ADClusterableAnnotation alloc] initWithDictionary:annotationDictionary];
             [annotations addObject:annotation];
-            [annotation release];
         }
         dispatch_async(dispatch_get_main_queue(), ^{
             NSLog(@"Building KD-Tree…");
@@ -43,7 +35,6 @@
         });
     });
     
-    [annotations release];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation {
@@ -71,9 +62,8 @@
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation {
     MKAnnotationView * pinView = (MKAnnotationView *)[mapView dequeueReusableAnnotationViewWithIdentifier:@"ADClusterableAnnotation"];
     if (!pinView) {
-        pinView = [[[MKAnnotationView alloc] initWithAnnotation:annotation
-                                                reuseIdentifier:@"ADClusterableAnnotation"]
-                   autorelease];
+        pinView = [[MKAnnotationView alloc] initWithAnnotation:annotation
+                                                reuseIdentifier:@"ADClusterableAnnotation"];
         pinView.image = [UIImage imageNamed:self.pictoName];
         pinView.canShowCallout = YES;
     }
@@ -86,9 +76,8 @@
 - (MKAnnotationView *)mapView:(ADClusterMapView *)mapView viewForClusterAnnotation:(id<MKAnnotation>)annotation {
     MKAnnotationView * pinView = (MKAnnotationView *)[mapView dequeueReusableAnnotationViewWithIdentifier:@"ADMapCluster"];
     if (!pinView) {
-        pinView = [[[MKAnnotationView alloc] initWithAnnotation:annotation
-                                                reuseIdentifier:@"ADMapCluster"]
-                   autorelease];
+        pinView = [[MKAnnotationView alloc] initWithAnnotation:annotation
+                                                reuseIdentifier:@"ADMapCluster"];
         pinView.image = [UIImage imageNamed:self.clusterPictoName];
         pinView.canShowCallout = YES;
     }

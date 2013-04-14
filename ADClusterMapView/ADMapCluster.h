@@ -22,7 +22,7 @@
 @property (nonatomic) CLLocationCoordinate2D clusterCoordinate;
 @property (nonatomic, readonly) NSString * title;
 @property (nonatomic, readonly) NSString * subtitle;
-@property (nonatomic, retain) ADMapPointAnnotation * annotation;
+@property (nonatomic, strong) ADMapPointAnnotation * annotation;
 @property (nonatomic, readonly) NSMutableArray * originalAnnotations;
 @property (nonatomic, readonly) NSInteger depth;
 @property (nonatomic, assign) BOOL showSubtitle;
