@@ -10,8 +10,8 @@
 #import "ADClusterMapView.h"
 
 @interface CDMapViewController : UIViewController <ADClusterMapViewDelegate>
-@property (retain, nonatomic) IBOutlet ADClusterMapView * mapView;
-@property (readonly, nonatomic) NSString * seedFileName; // abstract
-@property (readonly, nonatomic) NSString * pictoName; // abstract
-@property (readonly, nonatomic) NSString * clusterPictoName; // abstract
+@property (strong, nonatomic) IBOutlet ADClusterMapView * mapView;
+@property (copy, readonly, nonatomic) NSString * seedFileName; // abstract
+@property (copy, readonly, nonatomic) NSString * pictoName; // abstract
+@property (copy, readonly, nonatomic) NSString * clusterPictoName; // abstract
 @end
