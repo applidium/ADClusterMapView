@@ -150,7 +150,7 @@
 
 - (void)animationDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context {
     for (ADClusterAnnotation * annotation in self.annotations) {
-        if (![annotation isKindOfClass:[MKUserLocation class]]) {
+        if ([annotation isKindOfClass:[ADClusterAnnotation class]]) {
             if (annotation.shouldBeRemovedAfterAnimation) {
                 [annotation reset];
             }
