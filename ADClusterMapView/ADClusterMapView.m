@@ -19,6 +19,8 @@
     NSMutableArray *               _clusterAnnotationsPool;
     BOOL                           _isAnimatingClusters;
     BOOL                           _shouldComputeClusters;
+    BOOL                           _isSettingAnnotations;
+    NSArray *                      _annotationsToBeSet;
 }
 
 @end
@@ -39,64 +41,77 @@
 }
 
 - (void)setAnnotations:(NSArray *)annotations {
-    NSPredicate * predicate = [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary * bindings) {
-        return ![evaluatedObject isKindOfClass: [MKUserLocation class]];
-    }];
-    NSArray * annotationsExcludingUserLocation = [self.annotations filteredArrayUsingPredicate:predicate];
-    [self removeAnnotations:annotationsExcludingUserLocation];
-    NSInteger numberOfAnnotationsInPool = 2 * [self _numberOfClusters]; // We manage a pool of annotations. In case we have N splits and N joins in a single animation we have to double up the actual number of annotations that belongs to the pool.
-    [_singleAnnotationsPool release];
-    _singleAnnotationsPool = [[NSMutableArray alloc] initWithCapacity: numberOfAnnotationsInPool];
-    [_clusterAnnotationsPool release];
-    _clusterAnnotationsPool = [[NSMutableArray alloc] initWithCapacity: numberOfAnnotationsInPool];
-    for (int i = 0; i < numberOfAnnotationsInPool; i++) {
-        ADClusterAnnotation * annotation = [[ADClusterAnnotation alloc] init];
-        annotation.type = ADClusterAnnotationTypeLeaf;
-        [_singleAnnotationsPool addObject:annotation];
-        [annotation release];
-        annotation = [[ADClusterAnnotation alloc] init];
-        annotation.type = ADClusterAnnotationTypeCluster;
-        [_clusterAnnotationsPool addObject:annotation];
-        [annotation release];
-    }
-    [super addAnnotations:_singleAnnotationsPool];
-    [super addAnnotations:_clusterAnnotationsPool];
-    
-    double gamma = 1.0; // default value
-    if ([_secondaryDelegate respondsToSelector:@selector(clusterDiscriminationPowerForMapView:)]) {
-        gamma = [_secondaryDelegate clusterDiscriminationPowerForMapView:self];
-    }
-    
-    NSString * clusterTitle = @"%d elements";
-    if ([_secondaryDelegate respondsToSelector:@selector(clusterTitleForMapView:)]) {
-        clusterTitle = [_secondaryDelegate clusterTitleForMapView:self];
-    }
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        // use wrapper annotations that expose a MKMapPoint property instead of a CLLocationCoordinate2D property
-        NSMutableArray * mapPointAnnotations = [[NSMutableArray alloc] initWithCapacity:annotations.count];
-        for (id<MKAnnotation> annotation in annotations) {
-            ADMapPointAnnotation * mapPointAnnotation = [[ADMapPointAnnotation alloc] initWithAnnotation:annotation];
-            [mapPointAnnotations addObject:mapPointAnnotation];
-            [mapPointAnnotation release];
+    if (!_isSettingAnnotations) {
+        _isSettingAnnotations = YES;
+        NSPredicate * predicate = [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary * bindings) {
+            return ![evaluatedObject isKindOfClass: [MKUserLocation class]];
+        }];
+        NSArray * annotationsExcludingUserLocation = [self.annotations filteredArrayUsingPredicate:predicate];
+        [self removeAnnotations:annotationsExcludingUserLocation];
+        NSInteger numberOfAnnotationsInPool = 2 * [self _numberOfClusters]; // We manage a pool of annotations. In case we have N splits and N joins in a single animation we have to double up the actual number of annotations that belongs to the pool.
+        [_singleAnnotationsPool release];
+        _singleAnnotationsPool = [[NSMutableArray alloc] initWithCapacity: numberOfAnnotationsInPool];
+        [_clusterAnnotationsPool release];
+        _clusterAnnotationsPool = [[NSMutableArray alloc] initWithCapacity: numberOfAnnotationsInPool];
+        for (int i = 0; i < numberOfAnnotationsInPool; i++) {
+            ADClusterAnnotation * annotation = [[ADClusterAnnotation alloc] init];
+            annotation.type = ADClusterAnnotationTypeLeaf;
+            [_singleAnnotationsPool addObject:annotation];
+            [annotation release];
+            annotation = [[ADClusterAnnotation alloc] init];
+            annotation.type = ADClusterAnnotationTypeCluster;
+            [_clusterAnnotationsPool addObject:annotation];
+            [annotation release];
         }
-        [_rootMapCluster release];
-        
-        // Setting visibility of cluster annotations subtitle (defaults to YES)
-        BOOL shouldShowSubtitle = YES;
-        if ([_secondaryDelegate respondsToSelector:@selector(shouldShowSubtitleForClusterAnnotationsInMapView:)]) {
-            shouldShowSubtitle = [_secondaryDelegate shouldShowSubtitleForClusterAnnotationsInMapView:self];
+        [super addAnnotations:_singleAnnotationsPool];
+        [super addAnnotations:_clusterAnnotationsPool];
+
+        double gamma = 1.0; // default value
+        if ([_secondaryDelegate respondsToSelector:@selector(clusterDiscriminationPowerForMapView:)]) {
+            gamma = [_secondaryDelegate clusterDiscriminationPowerForMapView:self];
         }
-        
-        _rootMapCluster = [[ADMapCluster rootClusterForAnnotations:mapPointAnnotations gamma:gamma clusterTitle:clusterTitle showSubtitle:shouldShowSubtitle] retain];
-        
-        [mapPointAnnotations release];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self _clusterInMapRect:self.visibleMapRect];
-            if ([_secondaryDelegate respondsToSelector:@selector(mapViewDidFinishClustering:)]) {
-                [_secondaryDelegate mapViewDidFinishClustering:self];
+
+        NSString * clusterTitle = @"%d elements";
+        if ([_secondaryDelegate respondsToSelector:@selector(clusterTitleForMapView:)]) {
+            clusterTitle = [_secondaryDelegate clusterTitleForMapView:self];
+        }
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+            // use wrapper annotations that expose a MKMapPoint property instead of a CLLocationCoordinate2D property
+            NSMutableArray * mapPointAnnotations = [[NSMutableArray alloc] initWithCapacity:annotations.count];
+            for (id<MKAnnotation> annotation in annotations) {
+                ADMapPointAnnotation * mapPointAnnotation = [[ADMapPointAnnotation alloc] initWithAnnotation:annotation];
+                [mapPointAnnotations addObject:mapPointAnnotation];
+                [mapPointAnnotation release];
             }
+            [_rootMapCluster release];
+
+            // Setting visibility of cluster annotations subtitle (defaults to YES)
+            BOOL shouldShowSubtitle = YES;
+            if ([_secondaryDelegate respondsToSelector:@selector(shouldShowSubtitleForClusterAnnotationsInMapView:)]) {
+                shouldShowSubtitle = [_secondaryDelegate shouldShowSubtitleForClusterAnnotationsInMapView:self];
+            }
+
+            _rootMapCluster = [[ADMapCluster rootClusterForAnnotations:mapPointAnnotations gamma:gamma clusterTitle:clusterTitle showSubtitle:shouldShowSubtitle] retain];
+
+            [mapPointAnnotations release];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self _clusterInMapRect:self.visibleMapRect];
+                if ([_secondaryDelegate respondsToSelector:@selector(mapViewDidFinishClustering:)]) {
+                    [_secondaryDelegate mapViewDidFinishClustering:self];
+                }
+                _isSettingAnnotations = NO;
+                if (_annotationsToBeSet) {
+                    NSArray * annotations = [_annotationsToBeSet retain];
+                    [_annotationsToBeSet release], _annotationsToBeSet = nil;
+                    [self setAnnotations:annotations];
+                    [annotations release];
+                }
+            });
         });
-    });
+    } else {
+        // keep the annotations for setting them later
+        [_annotationsToBeSet release], _annotationsToBeSet = [annotations retain];
+    }
 }
 
 - (void)addAnnotation:(id<MKAnnotation>)annotation {
