@@ -1,6 +1,6 @@
 # ADClusterMapView - MKMapView with clustering
 
-ADClusterMapView is a drop-in subclass of MKMapView that displays and animate clusters of annotations. This is very useful in cases where you have to display many annotations on the map. Concept and implementation were described on Applidium's [website][].
+ADClusterMapView is a drop-in subclass of MKMapView that displays and animates clusters of annotations. This is very useful in cases where you have to display many annotations on the map. Concept and implementation were described on Applidium's [website][].
 
 [website]: http://applidium.com/en/news/too_many_pins_on_your_map/
 
