@@ -358,7 +358,7 @@
     NSMutableArray * originalAnnotations = nil;
     if (self.annotation) {
         originalAnnotations = [[NSMutableArray alloc] init];
-        [originalAnnotations addObject:self.annotation];
+        [originalAnnotations addObject:self.annotation.annotation];
     } else {
         originalAnnotations = [_leftChild.originalAnnotations retain];
         [originalAnnotations addObjectsFromArray:_rightChild.originalAnnotations];
