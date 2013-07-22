@@ -10,6 +10,10 @@ ADClusterMapView is a drop-in subclass of MKMapView that displays and animates c
 3. Turn your MKMapView instance into a subclass of ADClusterMapView
 4. Set your annotations by calling `setAnnotations:`. Do not use `addAnnotation:` or `addAnnotations:` as they are not supported yet.
 
+## ARC
+If you are using ARC in your project, use the `-fno-objc-arc` flag in the *Build Phases > Compile Sources* section in Xcode.
+![Compilation Flag For ARC](http://i.imgur.com/sCqoSjq.png)
+
 ## Optional delegate methods
 
 We provide you with a few optional methods that you may want to add to your `ADClusterMapViewDelegate` implementation:
