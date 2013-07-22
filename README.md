@@ -18,7 +18,7 @@ If you are using ARC in your project, add the `-fno-objc-arc` flag to the files 
 
 ## Displaying custom MKAnnotationView instances
 
-In the `mapView:viewForAnnotation:` and `mapView: viewForClusterAnnotation:` implementations of your map view's delegate, you are given an instance of ADClusterAnnotation. You can call `[annotation originalAnnotations]` to retrieve your original `id<MKAnnotation>` instances and customize your MKAnnotationViewinstance like you would do with Map Kit.
+In the `mapView:viewForAnnotation:` and `mapView: viewForClusterAnnotation:` implementations of your map view's delegate, you are given an instance of ADClusterAnnotation. You can call `[annotation originalAnnotations]` to retrieve your original `id<MKAnnotation>` instances and customize your `MKAnnotationView` instance like you would do with Map Kit.
 This is especially useful in the case of a *leaf* annotation, whose `originalAnnotations` array obviously contains one and only one object.
 
 ### Example code:
