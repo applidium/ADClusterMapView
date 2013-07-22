@@ -320,11 +320,14 @@
                         if (annotation.type == ADClusterAnnotationTypeLeaf) { // replace this annotation by a cluster one
                             ADClusterAnnotation * clusterAnnotation = [availableClusterAnnotations lastObject];
                             [availableClusterAnnotations removeLastObject];
+                            clusterAnnotation.cluster = cluster;
+                            // Setting the coordinate makes us call viewForAnnotation: right away, so make sure the cluster is set
                             clusterAnnotation.coordinate = annotation.coordinate;
                             [availableSingleAnnotations addObject:annotation];
                             annotation = clusterAnnotation;
+                        } else {
+                            annotation.cluster = cluster;
                         }
-                        annotation.cluster = cluster;
                         if (didAlreadyFindAChild) {
                             annotation.shouldBeRemovedAfterAnimation = YES;
                         }
