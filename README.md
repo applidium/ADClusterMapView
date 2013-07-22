@@ -4,16 +4,37 @@ ADClusterMapView is a drop-in subclass of MKMapView that displays and animates c
 
 [website]: http://applidium.com/en/news/too_many_pins_on_your_map/
 
-## How to use
+## Quick start
+
 1. Add the content of the ADClusterMapView folder to your iOS project
 2. Link against the MapKit and CoreLocation frameworks if you don't already
 3. Turn your MKMapView instance into a subclass of ADClusterMapView
 4. Set your annotations by calling `setAnnotations:`. Do not use `addAnnotation:` or `addAnnotations:` as they are not supported yet.
 
-## ARC
+### ARC
 If you are using ARC in your project, add the `-fno-objc-arc` flag to the files of the library in the *Build Phases > Compile Sources* section in Xcode.
 
 ![Compilation Flag For ARC](http://i.imgur.com/sCqoSjq.png)
+
+## Displaying custom MKAnnotationView instances
+
+In the `mapView:viewForAnnotation:` and `mapView: viewForClusterAnnotation:` implementations of your map view's delegate, you are given an instance of ADClusterAnnotation. You can call `[annotation originalAnnotations]` to retrieve your original `id<MKAnnotation>` instances and customize your MKAnnotationViewinstance like you would do with Map Kit.
+This is especially useful in the case of a *leaf* annotation, whose `originalAnnotations` array obviously contains one and only one object.
+
+### Example code:
+```objective-c
+- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation {
+    MyAnnotationView * pinView = (MyAnnotationView *)[mapView dequeueReusableAnnotationViewWithIdentifier:@"ADClusterableAnnotation"];
+    if (!pinView) {
+        pinView = [[[MyAnnotationView alloc] initWithAnnotation:annotation
+                                                reuseIdentifier:@"ADClusterableAnnotation"]
+                   autorelease];
+    }
+    MyModel * model = [annotation originalAnnotations][0];
+    pinView.image = model.image;
+    return pinView;
+}
+```
 
 ## Optional delegate methods
 
