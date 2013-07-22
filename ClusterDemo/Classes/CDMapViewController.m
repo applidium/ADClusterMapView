@@ -28,7 +28,7 @@
     NSMutableArray * annotations = [[NSMutableArray alloc] init];
     
     self.mapView.visibleMapRect = MKMapRectMake(135888858.533591, 92250098.902419, 190858.927912, 145995.678292);
-    NSLog(@"Seeind data…");
+    NSLog(@"Loading data…");
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
         NSData * JSONData = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:self.seedFileName ofType:@"json"]];
         
