@@ -1,3 +1,14 @@
+## 1.0.3 (under development)
+
+Bugfixes:
+
+  - Fix potential crash during animations (@scheinem)
+  - Fix a bug when an ADClusterAnnotation instance had no cluster assigned in `mapView:viewForAnnotation:`
+
+Features:
+
+  - `originalAnnotations` returns an array of id<MKAnnotation> (not ADMapPointAnnotation)
+
 ## 1.0.2 (8 April 2013)
 
 Bugfixes:
