@@ -7,7 +7,7 @@ Bugfixes:
 
 Features:
 
-  - `originalAnnotations` returns an array of id<MKAnnotation> (not ADMapPointAnnotation)
+  - `originalAnnotations` returns an array of id&lt;MKAnnotation&gt; (not ADMapPointAnnotation)
 
 ## 1.0.2 (8 April 2013)
 
