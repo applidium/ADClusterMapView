@@ -313,14 +313,15 @@
 
 - (NSString *)title {
     if (!self.annotation) {
-        return [NSString stringWithFormat:_clusterTitle, [self numberOfChildren]];
+        if (_clusterTitle) {
+            return [NSString stringWithFormat:_clusterTitle, [self numberOfChildren]];
+        }
     } else {
         if ([self.annotation.annotation respondsToSelector:@selector(title)]) {
             return self.annotation.annotation.title;
-        } else {
-            return nil;
         }
     }
+    return nil;
 }
 
 - (NSString *)subtitle {

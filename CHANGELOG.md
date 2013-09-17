@@ -4,6 +4,7 @@ Bugfixes:
 
   - Fix potential crash during animations (@scheinem)
   - Fix a bug when an ADClusterAnnotation instance had no cluster assigned in `mapView:viewForAnnotation:`
+  - Fix crash when the view is deallocated and the private `MKMapAnnotationManager` class still tries to update a selected annotation. (@alloy)
 
 Features:
 
