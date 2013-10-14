@@ -14,7 +14,7 @@ ADClusterMapView is a drop-in subclass of MKMapView that displays and animates c
 ### ARC
 If you are using ARC in your project, add the `-fno-objc-arc` flag to the files of the library in the *Build Phases > Compile Sources* section in Xcode.
 
-![Compilation Flag For ARC](http://i.imgur.com/sCqoSjq.png)
+![Compilation Flag For ARC](http://applidium.github.io/ADClusterMapView/images/arc.png)
 
 ## Displaying custom MKAnnotationView instances
 
