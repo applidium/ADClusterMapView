@@ -34,10 +34,9 @@
 @implementation ADClusterMapView
 
 - (void)dealloc {
-    [_clusterAnnotationsPool release], _clusterAnnotationsPool = nil;
-    [_singleAnnotationsPool release], _singleAnnotationsPool = nil;
-    [_rootMapCluster release], _rootMapCluster = nil;
-    [super dealloc];
+    _clusterAnnotationsPool = nil;
+    _singleAnnotationsPool = nil;
+    _rootMapCluster = nil;
 }
 
 - (void)setAnnotations:(NSArray *)annotations {
@@ -49,19 +48,15 @@
         NSArray * annotationsExcludingUserLocation = [self.annotations filteredArrayUsingPredicate:predicate];
         [self removeAnnotations:annotationsExcludingUserLocation];
         NSInteger numberOfAnnotationsInPool = 2 * [self _numberOfClusters]; // We manage a pool of annotations. In case we have N splits and N joins in a single animation we have to double up the actual number of annotations that belongs to the pool.
-        [_singleAnnotationsPool release];
         _singleAnnotationsPool = [[NSMutableArray alloc] initWithCapacity: numberOfAnnotationsInPool];
-        [_clusterAnnotationsPool release];
         _clusterAnnotationsPool = [[NSMutableArray alloc] initWithCapacity: numberOfAnnotationsInPool];
         for (int i = 0; i < numberOfAnnotationsInPool; i++) {
             ADClusterAnnotation * annotation = [[ADClusterAnnotation alloc] init];
             annotation.type = ADClusterAnnotationTypeLeaf;
             [_singleAnnotationsPool addObject:annotation];
-            [annotation release];
             annotation = [[ADClusterAnnotation alloc] init];
             annotation.type = ADClusterAnnotationTypeCluster;
             [_clusterAnnotationsPool addObject:annotation];
-            [annotation release];
         }
         [super addAnnotations:_singleAnnotationsPool];
         [super addAnnotations:_clusterAnnotationsPool];
@@ -81,9 +76,7 @@
             for (id<MKAnnotation> annotation in annotations) {
                 ADMapPointAnnotation * mapPointAnnotation = [[ADMapPointAnnotation alloc] initWithAnnotation:annotation];
                 [mapPointAnnotations addObject:mapPointAnnotation];
-                [mapPointAnnotation release];
             }
-            [_rootMapCluster release];
 
             // Setting visibility of cluster annotations subtitle (defaults to YES)
             BOOL shouldShowSubtitle = YES;
@@ -91,9 +84,8 @@
                 shouldShowSubtitle = [_secondaryDelegate shouldShowSubtitleForClusterAnnotationsInMapView:self];
             }
 
-            _rootMapCluster = [[ADMapCluster rootClusterForAnnotations:mapPointAnnotations gamma:gamma clusterTitle:clusterTitle showSubtitle:shouldShowSubtitle] retain];
+            _rootMapCluster = [ADMapCluster rootClusterForAnnotations:mapPointAnnotations gamma:gamma clusterTitle:clusterTitle showSubtitle:shouldShowSubtitle];
 
-            [mapPointAnnotations release];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self _clusterInMapRect:self.visibleMapRect];
                 if ([_secondaryDelegate respondsToSelector:@selector(mapViewDidFinishClustering:)]) {
@@ -101,16 +93,15 @@
                 }
                 _isSettingAnnotations = NO;
                 if (_annotationsToBeSet) {
-                    NSArray * annotations = [_annotationsToBeSet retain];
-                    [_annotationsToBeSet release], _annotationsToBeSet = nil;
+                    NSArray * annotations = _annotationsToBeSet;
+                    _annotationsToBeSet, _annotationsToBeSet = nil;
                     [self setAnnotations:annotations];
-                    [annotations release];
                 }
             });
         });
     } else {
         // keep the annotations for setting them later
-        [_annotationsToBeSet release], _annotationsToBeSet = [annotations retain];
+        _annotationsToBeSet = annotations;
     }
 }
 
@@ -138,7 +129,7 @@
             [displayedAnnotations addObject:annotation];
         }
     }
-    return [displayedAnnotations autorelease];
+    return displayedAnnotations;
 }
 
 #pragma mark - Objective-C Runtime and subclassing methods
@@ -241,7 +232,7 @@
 
 @implementation ADClusterMapView (Private)
 - (void)_clusterInMapRect:(MKMapRect)rect {
-    NSArray * clustersToShowOnMap = [[_rootMapCluster find:[self _numberOfClusters] childrenInMapRect:rect] retain];
+    NSArray * clustersToShowOnMap = [_rootMapCluster find:[self _numberOfClusters] childrenInMapRect:rect];
     
     // Build an array with available annotations (eg. not moving or not staying at the same place on the map)
     NSMutableArray * availableSingleAnnotations = [[NSMutableArray alloc] init];
@@ -307,13 +298,11 @@
             }
         }
     }
-    [selfDividingClusterAnnotations release];
-    [selfDividingSingleAnnotations release];
     
     // Converge annotations to ancestor clusters
     for (ADMapCluster * cluster in clustersToShowOnMap) {
         BOOL didAlreadyFindAChild = NO;
-        for (ADClusterAnnotation * annotation in self.annotations) {
+        for (__strong ADClusterAnnotation * annotation in self.annotations) {
             if (![annotation isKindOfClass:[MKUserLocation class]]) {
                 if (annotation.cluster && ![annotation isKindOfClass:[MKUserLocation class]]) {
                     if ([cluster isAncestorOf:annotation.cluster]) {
@@ -396,9 +385,6 @@
         NSAssert(annotation.type == ADClusterAnnotationTypeCluster, @"Inconsistent annotation type!");
         [annotation reset];
     }
-    [availableClusterAnnotations release];
-    [availableSingleAnnotations release];
-    [clustersToShowOnMap release];
 }
 
 - (NSInteger)_numberOfClusters {
