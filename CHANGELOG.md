@@ -1,4 +1,4 @@
-## 1.0.3 (under development)
+## 1.0.3 (15 April 2014)
 
 Bugfixes:
 
