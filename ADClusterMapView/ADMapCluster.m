@@ -11,6 +11,15 @@
 
 #define ADMapClusterDiscriminationPrecision 1E-4
 
+@interface ADMapCluster () {
+    ADMapCluster * _leftChild;
+    ADMapCluster * _rightChild;
+    MKMapRect _mapRect;
+    NSString * _clusterTitle;
+}
+
+@end
+
 @interface ADMapCluster (Private)
 - (MKMapRect)_mapRect;
 - (void)_cleanClusters:(NSMutableArray *)clusters fromAncestorsOfClusters:(NSArray *)referenceClusters;
@@ -18,9 +27,6 @@
 @end
 
 @implementation ADMapCluster
-@synthesize clusterCoordinate = _clusterCoordinate;
-@synthesize annotation = _annotation;
-@synthesize depth = _depth;
 
 - (id)initWithAnnotations:(NSArray *)annotations atDepth:(NSInteger)depth inMapRect:(MKMapRect)mapRect gamma:(double)gamma clusterTitle:(NSString *)clusterTitle showSubtitle:(BOOL)showSubtitle {
     self = [super init];

@@ -10,15 +10,7 @@
 #import <MapKit/MapKit.h>
 #import "ADMapPointAnnotation.h"
 
-@interface ADMapCluster : NSObject {
-    CLLocationCoordinate2D _clusterCoordinate;
-    ADMapCluster *         _leftChild;
-    ADMapCluster *         _rightChild;
-    MKMapRect              _mapRect;
-    ADMapPointAnnotation * _annotation;
-    NSString *             _clusterTitle;
-    NSInteger              _depth;
-}
+@interface ADMapCluster : NSObject
 @property (nonatomic) CLLocationCoordinate2D clusterCoordinate;
 @property (weak, nonatomic, readonly) NSString * title;
 @property (weak, nonatomic, readonly) NSString * subtitle;

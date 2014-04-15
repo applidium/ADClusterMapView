@@ -20,12 +20,7 @@ typedef enum {
     ADClusterAnnotationTypeCluster = 2
 } ADClusterAnnotationType;
 
-@interface ADClusterAnnotation : NSObject <MKAnnotation> {
-    CLLocationCoordinate2D  _coordinate;
-    ADClusterAnnotationType _type;
-    ADMapCluster *          __weak _cluster;
-    BOOL                    _shouldBeRemovedAfterAnimation;
-}
+@interface ADClusterAnnotation : NSObject <MKAnnotation>
 @property (nonatomic) ADClusterAnnotationType type;
 @property (nonatomic) CLLocationCoordinate2D coordinate;
 @property (nonatomic, weak) ADMapCluster * cluster;

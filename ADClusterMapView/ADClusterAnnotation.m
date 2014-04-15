@@ -14,10 +14,7 @@ BOOL ADClusterCoordinate2DIsOffscreen(CLLocationCoordinate2D coord) {
 }
 
 @implementation ADClusterAnnotation
-@synthesize coordinate = _coordinate;
-@synthesize type = _type;
 @synthesize cluster = _cluster;
-@synthesize shouldBeRemovedAfterAnimation = _shouldBeRemovedAfterAnimation;
 
 - (id)init {
     self = [super init];

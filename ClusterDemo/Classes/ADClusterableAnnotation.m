@@ -15,7 +15,6 @@
 @end
 
 @implementation ADClusterableAnnotation
-@synthesize coordinate = _coordinate;
 
 - (id)initWithDictionary:(NSDictionary *)dictionary {
     self = [super init];
