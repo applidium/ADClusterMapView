@@ -21,6 +21,8 @@
     BOOL                           _shouldComputeClusters;
     BOOL                           _isSettingAnnotations;
     NSArray *                      _annotationsToBeSet;
+    NSArray *                      _originalAnnotations;
+    NSArray *                      _clusterAnnotations;
 }
 
 @end
@@ -35,12 +37,9 @@
 
 - (void)setAnnotations:(NSArray *)annotations {
     if (!_isSettingAnnotations) {
+        _originalAnnotations = annotations;
         _isSettingAnnotations = YES;
-        NSPredicate * predicate = [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary * bindings) {
-            return ![evaluatedObject isKindOfClass: [MKUserLocation class]];
-        }];
-        NSArray * annotationsExcludingUserLocation = [self.annotations filteredArrayUsingPredicate:predicate];
-        [self removeAnnotations:annotationsExcludingUserLocation];
+        [self removeAnnotations:_clusterAnnotations];
         NSInteger numberOfAnnotationsInPool = 2 * [self _numberOfClusters]; // We manage a pool of annotations. In case we have N splits and N joins in a single animation we have to double up the actual number of annotations that belongs to the pool.
         _singleAnnotationsPool = [[NSMutableArray alloc] initWithCapacity: numberOfAnnotationsInPool];
         _clusterAnnotationsPool = [[NSMutableArray alloc] initWithCapacity: numberOfAnnotationsInPool];
@@ -54,6 +53,7 @@
         }
         [super addAnnotations:_singleAnnotationsPool];
         [super addAnnotations:_clusterAnnotationsPool];
+        _clusterAnnotations = [_singleAnnotationsPool arrayByAddingObjectsFromArray:_clusterAnnotationsPool];
 
         double gamma = 1.0; // default value
         if ([_secondaryDelegate respondsToSelector:@selector(clusterDiscriminationPowerForMapView:)]) {
@@ -126,6 +126,14 @@
     return displayedAnnotations;
 }
 
+// careful, the implementation of the following method is slow
+- (NSArray *)annotations {
+    NSArray * otherAnnotations = [[super annotations] filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
+        return  ![evaluatedObject isKindOfClass: [ADClusterAnnotation class]];
+    }]];
+    return [_originalAnnotations arrayByAddingObjectsFromArray:otherAnnotations];
+}
+
 #pragma mark - Objective-C Runtime and subclassing methods
 - (void)setDelegate:(id<ADClusterMapViewDelegate>)delegate {
     /* 
@@ -153,7 +161,7 @@
 }
 
 - (void)animationDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context {
-    for (ADClusterAnnotation * annotation in self.annotations) {
+    for (ADClusterAnnotation * annotation in _clusterAnnotations) {
         if ([annotation isKindOfClass:[ADClusterAnnotation class]]) {
             if (annotation.shouldBeRemovedAfterAnimation) {
                 [annotation reset];
@@ -296,7 +304,7 @@
     // Converge annotations to ancestor clusters
     for (ADMapCluster * cluster in clustersToShowOnMap) {
         BOOL didAlreadyFindAChild = NO;
-        for (__strong ADClusterAnnotation * annotation in self.annotations) {
+        for (__strong ADClusterAnnotation * annotation in _clusterAnnotations) {
             if (![annotation isKindOfClass:[MKUserLocation class]]) {
                 if (annotation.cluster && ![annotation isKindOfClass:[MKUserLocation class]]) {
                     if ([cluster isAncestorOf:annotation.cluster]) {
@@ -339,7 +347,7 @@
     [UIView setAnimationBeginsFromCurrentState:NO];
     [UIView setAnimationDelegate:self];
     [UIView setAnimationDuration:0.5f];
-    for (ADClusterAnnotation * annotation in self.annotations) {
+    for (ADClusterAnnotation * annotation in _clusterAnnotations) {
         if (![annotation isKindOfClass:[MKUserLocation class]] && annotation.cluster) {
             NSAssert(!ADClusterCoordinate2DIsOffscreen(annotation.coordinate), @"annotation.coordinate not valid! Can't animate from an invalid coordinate (inconsistent result)!");
             annotation.coordinate = annotation.cluster.clusterCoordinate;
@@ -351,7 +359,7 @@
     // Add not-yet-annotated clusters
     for (ADMapCluster * cluster in clustersToShowOnMap) {
         BOOL isAlreadyAnnotated = NO;
-        for (ADClusterAnnotation * annotation in self.annotations) {
+        for (ADClusterAnnotation * annotation in _clusterAnnotations) {
             if (![annotation isKindOfClass:[MKUserLocation class]]) {
                 if ([cluster isEqual:annotation.cluster]) {
                     isAlreadyAnnotated = YES;
