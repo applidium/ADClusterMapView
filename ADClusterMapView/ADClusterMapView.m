@@ -134,6 +134,22 @@
     return [_originalAnnotations arrayByAddingObjectsFromArray:otherAnnotations];
 }
 
+- (void)addNonClusteredAnnotation:(id<MKAnnotation>)annotation {
+    [super addAnnotation:annotation];
+}
+
+- (void)addNonClusteredAnnotations:(NSArray *)annotations {
+    [super addAnnotations:annotations];
+}
+
+- (void)removeNonClusteredAnnotation:(id<MKAnnotation>)annotation {
+    [super removeAnnotation:annotation];
+}
+
+- (void)removeNonClusteredAnnotations:(NSArray *)annotations {
+    [super removeAnnotations:annotations];
+}
+
 #pragma mark - Objective-C Runtime and subclassing methods
 - (void)setDelegate:(id<ADClusterMapViewDelegate>)delegate {
     /* 
@@ -181,11 +197,12 @@
 
 #pragma mark - MKMapViewDelegate
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation {
-    if ([annotation isKindOfClass:[MKUserLocation class]]) {
-        if ([_secondaryDelegate respondsToSelector:@selector(mapView:viewForAnnotation:)])
+    if (![annotation isKindOfClass:[ADClusterAnnotation class]]) {
+        if ([_secondaryDelegate respondsToSelector:@selector(mapView:viewForAnnotation:)]) {
             return [_secondaryDelegate mapView:self viewForAnnotation:annotation];
-        else
+        } else {
             return nil;
+        }
 	}
     // only leaf clusters have annotations
     if (((ADClusterAnnotation *)annotation).type == ADClusterAnnotationTypeLeaf || ![_secondaryDelegate respondsToSelector:@selector(mapView:viewForClusterAnnotation:)]) {

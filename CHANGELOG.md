@@ -4,6 +4,7 @@ Features:
 
   - Use ARC
   - `annotations` now returns an array of the annotations that the user added instead of ADClusterAnnotation instances.
+  - Add methods to add and remove non clustered annotations
 
 ## 1.0.3 (15 April 2014)
 

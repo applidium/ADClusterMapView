@@ -26,6 +26,10 @@
 @interface ADClusterMapView : MKMapView <MKMapViewDelegate>
 - (ADClusterAnnotation *)clusterAnnotationForOriginalAnnotation:(id<MKAnnotation>)annotation; // returns the ADClusterAnnotation instance containing the annotation originally added.
 - (void)selectClusterAnnotation:(ADClusterAnnotation *)annotation animated:(BOOL)animated;
-- (void)setAnnotations:(NSArray *)annotations;
+- (void)setAnnotations:(NSArray *)annotations; // entry point for the annotations that you want to cluster
+- (void)addNonClusteredAnnotations:(NSArray *)annotations;
+- (void)addNonClusteredAnnotation:(id<MKAnnotation>)annotation;
+- (void)removeNonClusteredAnnotations:(NSArray *)annotations;
+- (void)removeNonClusteredAnnotation:(id<MKAnnotation>)annotation;
 @property (weak, nonatomic, readonly) NSArray * displayedAnnotations;
 @end
