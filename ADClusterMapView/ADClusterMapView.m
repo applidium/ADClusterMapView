@@ -152,7 +152,7 @@
 
 #pragma mark - Objective-C Runtime and subclassing methods
 - (void)setDelegate:(id<ADClusterMapViewDelegate>)delegate {
-    /* 
+    /*
      For an undefined reason, setDelegate is called multiple times. The first time, it is called with delegate = nil
      Therefore _secondaryDelegate may be nil when [_secondaryDelegate respondsToSelector:aSelector] is called (result : NO)
      There is some caching done in order to avoid calling respondsToSelector: too much. That's why if we don't take care the runtime will guess that we always have [_secondaryDelegate respondsToSelector:] = NO
@@ -252,7 +252,7 @@
 @implementation ADClusterMapView (Private)
 - (void)_clusterInMapRect:(MKMapRect)rect {
     NSArray * clustersToShowOnMap = [_rootMapCluster find:[self _numberOfClusters] childrenInMapRect:rect];
-    
+
     // Build an array with available annotations (eg. not moving or not staying at the same place on the map)
     NSMutableArray * availableSingleAnnotations = [[NSMutableArray alloc] init];
     NSMutableArray * availableClusterAnnotations = [[NSMutableArray alloc] init];
@@ -273,7 +273,7 @@
                 }
             }
         }
-        if (!isAncestor) { // if not an ancestor  
+        if (!isAncestor) { // if not an ancestor
             if (![self _annotation:annotation belongsToClusters:clustersToShowOnMap]) { // check if this annotation will be used later. If not, it is flagged as "available".
                 if (annotation.type == ADClusterAnnotationTypeLeaf) {
                     [availableSingleAnnotations addObject:annotation];
@@ -282,8 +282,8 @@
                 }
             }
         }
-    } 
-    
+    }
+
     // Let ancestor annotations divide themselves
     for (ADClusterAnnotation * annotation in [selfDividingSingleAnnotations arrayByAddingObjectsFromArray:selfDividingClusterAnnotations]) {
         BOOL willNeedAnAvailableAnnotation = NO;
@@ -317,7 +317,7 @@
             }
         }
     }
-    
+
     // Converge annotations to ancestor clusters
     for (ADMapCluster * cluster in clustersToShowOnMap) {
         BOOL didAlreadyFindAChild = NO;
@@ -350,7 +350,7 @@
     }
     for (ADClusterAnnotation * annotation in availableSingleAnnotations) {
         NSAssert(annotation.type == ADClusterAnnotationTypeLeaf, @"Inconsistent annotation type!");
-        if (annotation.cluster) { // This is here for performance reason (annotation reset causes the refresh of the annotation because of KVO) 
+        if (annotation.cluster) { // This is here for performance reason (annotation reset causes the refresh of the annotation because of KVO)
             [annotation reset];
         }
     }
@@ -371,8 +371,8 @@
         }
     }
     [UIView commitAnimations];
-    
-    
+
+
     // Add not-yet-annotated clusters
     for (ADMapCluster * cluster in clustersToShowOnMap) {
         BOOL isAlreadyAnnotated = NO;

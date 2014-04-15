@@ -22,7 +22,7 @@
 - (void)clusterAnimationDidStopForMapView:(ADClusterMapView *)mapView;
 - (void)mapViewDidFinishClustering:(ADClusterMapView *)mapView;
 @end
-	
+
 @interface ADClusterMapView : MKMapView <MKMapViewDelegate>
 - (ADClusterAnnotation *)clusterAnnotationForOriginalAnnotation:(id<MKAnnotation>)annotation; // returns the ADClusterAnnotation instance containing the annotation originally added.
 - (void)selectClusterAnnotation:(ADClusterAnnotation *)annotation animated:(BOOL)animated;

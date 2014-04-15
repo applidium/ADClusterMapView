@@ -31,7 +31,7 @@ BOOL ADClusterCoordinate2DIsOffscreen(CLLocationCoordinate2D coord) {
     [self willChangeValueForKey:@"title"];
     [self willChangeValueForKey:@"subtitle"];
     _cluster = cluster;
-    [self didChangeValueForKey:@"subtitle"];        
+    [self didChangeValueForKey:@"subtitle"];
     [self didChangeValueForKey:@"title"];
 }
 

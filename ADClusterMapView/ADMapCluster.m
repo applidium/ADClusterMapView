@@ -47,7 +47,7 @@
             self.clusterCoordinate = self.annotation.annotation.coordinate;
         } else {
             self.annotation = nil;
-            
+
             // Principal Component Analysis
             // If cov(x,y) = ∑(x-x_mean) * (y-y_mean) != 0 (covariance different from zero), we are looking for the following principal vector:
             // a (aX)
@@ -56,10 +56,10 @@
             // x_ = x - x_mean ; y_ = y - y_mean
             //
             // aX = cov(x_,y_)
-            // 
             //
-            // aY = 0.5/n * ( ∑(x_^2) + ∑(y_^2) + sqrt( (∑(x_^2) + ∑(y_^2))^2 + 4 * cov(x_,y_)^2 ) ) 
-            
+            //
+            // aY = 0.5/n * ( ∑(x_^2) + ∑(y_^2) + sqrt( (∑(x_^2) + ∑(y_^2))^2 + 4 * cov(x_,y_)^2 ) )
+
             // compute the means of the coordinate
             double XSum = 0.0;
             double YSum = 0.0;
@@ -69,12 +69,12 @@
             }
             double XMean = XSum / (double)annotations.count;
             double YMean = YSum / (double)annotations.count;
-            
+
             if (gamma != 1.0) {
                 // take gamma weight into account
                 double gammaSumX = 0.0;
                 double gammaSumY = 0.0;
-                
+
                 double maxDistance = 0.0;
                 MKMapPoint meanCenter = MKMapPointMake(XMean, YMean);
                 for (ADMapPointAnnotation * annotation in annotations) {
@@ -83,7 +83,7 @@
                         maxDistance = distance;
                     }
                 }
-                
+
                 double totalWeight = 0.0;
                 for (ADMapPointAnnotation * annotation in annotations) {
                     const MKMapPoint point = annotation.mapPoint;
@@ -98,7 +98,7 @@
                 YMean = gammaSumY/totalWeight;
             }
             // compute coefficients
-            
+
             double sumXsquared = 0.0;
             double sumYsquared = 0.0;
             double sumXY = 0.0;
@@ -110,10 +110,10 @@
                 sumYsquared += y * y;
                 sumXY += x * y;
             }
-            
+
             double aX = 0.0;
             double aY = 0.0;
-            
+
             if (fabs(sumXY)/annotations.count > ADMapClusterDiscriminationPrecision) {
                 aX = sumXY;
                 double lambda = 0.5 * ((sumXsquared + sumYsquared) + sqrt((sumXsquared + sumYsquared) * (sumXsquared + sumYsquared) + 4 * sumXY * sumXY));
@@ -122,10 +122,10 @@
                 aX = sumXsquared > sumYsquared ? 1.0 : 0.0;
                 aY = sumXsquared > sumYsquared ? 0.0 : 1.0;
             }
-            
+
             NSArray * leftAnnotations = nil;
             NSArray * rightAnnotations = nil;
-            
+
             if (fabs(sumXsquared)/annotations.count < ADMapClusterDiscriminationPrecision || fabs(sumYsquared)/annotations.count < ADMapClusterDiscriminationPrecision) { // all X and Y are the same => same coordinates
                 // then every x equals XMean and we have to arbitrarily choose where to put the pivotIndex
                 NSInteger pivotIndex = annotations.count /2 ;
@@ -153,10 +153,10 @@
                     }
                 }
             }
-            
+
             MKMapRect leftMapRect = MKMapRectNull;
             MKMapRect rightMapRect = MKMapRectNull;
-            
+
             // compute map rects
             double XMin = MAXFLOAT, XMax = 0.0, YMin = MAXFLOAT, YMax = 0.0;
             for (ADMapPointAnnotation * annotation in leftAnnotations) {
@@ -175,7 +175,7 @@
                 }
             }
             leftMapRect = MKMapRectMake(XMin, YMin, XMax - XMin, YMax - YMin);
-            
+
             XMin = MAXFLOAT, XMax = 0.0, YMin = MAXFLOAT, YMax = 0.0;
             for (ADMapPointAnnotation * annotation in rightAnnotations) {
                 const MKMapPoint point = annotation.mapPoint;
@@ -193,12 +193,12 @@
                 }
             }
             rightMapRect = MKMapRectMake(XMin, YMin, XMax - XMin, YMax - YMin);
-            
+
             _clusterCoordinate = MKCoordinateForMapPoint(MKMapPointMake(XMean, YMean));
-            
+
             _leftChild = [[ADMapCluster alloc] initWithAnnotations:leftAnnotations atDepth:depth+1 inMapRect:leftMapRect gamma:gamma clusterTitle:clusterTitle showSubtitle:showSubtitle];
             _rightChild = [[ADMapCluster alloc] initWithAnnotations:rightAnnotations atDepth:depth+1 inMapRect:rightMapRect gamma:gamma clusterTitle:clusterTitle showSubtitle:showSubtitle];
-            
+
         }
     }
     return self;
@@ -206,9 +206,9 @@
 
 + (ADMapCluster *)rootClusterForAnnotations:(NSArray *)initialAnnotations gamma:(double)gamma clusterTitle:(NSString *)clusterTitle showSubtitle:(BOOL)showSubtitle {
     // KDTree
-    
+
     MKMapRect boundaries = MKMapRectWorld;
-    
+
     // This is optional
     boundaries = MKMapRectMake(HUGE_VALF, HUGE_VALF, 0.0, 0.0);
     for (ADMapPointAnnotation * annotation in initialAnnotations) {
@@ -226,7 +226,7 @@
             boundaries.size.height = point.y - boundaries.origin.y;
         }
     }
-    
+
     NSLog(@"Computing KD-tree...");
     ADMapCluster * cluster = [[ADMapCluster alloc] initWithAnnotations:initialAnnotations atDepth:0 inMapRect:boundaries gamma:gamma clusterTitle:clusterTitle showSubtitle:showSubtitle];
     NSLog(@"Computation done !");
@@ -238,7 +238,7 @@
     // Adopt a breadth-first search strategy
     // If MapRect intersects the bounds, then keep this element for next iteration
     // Stop if there are N elements or more
-    // Or if the bottom of the tree was reached (d'oh!)    
+    // Or if the bottom of the tree was reached (d'oh!)
     NSMutableArray * clusters = [[NSMutableArray alloc] initWithObjects:self, nil];
     NSMutableArray * annotations = [[NSMutableArray alloc] init];
     NSMutableArray * previousLevelClusters = nil;
@@ -247,7 +247,7 @@
     while (clusters.count + annotations.count < N && clusters.count > 0 && clustersDidChange) {
         previousLevelAnnotations = [annotations mutableCopy];
         previousLevelClusters = [clusters mutableCopy];
-        
+
         clustersDidChange = NO;
         NSMutableArray * nextLevelClusters = [[NSMutableArray alloc] init];
         for (ADMapCluster * cluster in clusters) {
@@ -260,14 +260,14 @@
                     }
                 }
             }
-        }  
+        }
         if (nextLevelClusters.count > 0) {
             clusters = nextLevelClusters;
             clustersDidChange = YES;
         }
     }
     [self _cleanClusters:clusters fromAncestorsOfClusters:annotations];
-    
+
     if (clusters.count + annotations.count > N) { // if there are too many clusters and annotations, that means that we went one level too far in depth
         clusters = previousLevelClusters;
         annotations = previousLevelAnnotations;
@@ -275,7 +275,7 @@
     }
     [self _cleanClusters:clusters outsideMapRect:mapRect];
     [annotations addObjectsFromArray:clusters];
-    
+
     return annotations;
 }
 
