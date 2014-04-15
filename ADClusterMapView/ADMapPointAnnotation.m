@@ -16,13 +16,12 @@
     self = [super init];
     if (self) {
         _mapPoint = MKMapPointForCoordinate(annotation.coordinate);
-        _annotation = [annotation retain];
+        _annotation = annotation;
     }
     return self;
 }
 
 - (void)dealloc {
-    [_annotation release], _annotation = nil;
-    [super dealloc];
+    _annotation = nil;
 }
 @end

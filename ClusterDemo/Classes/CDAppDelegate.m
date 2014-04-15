@@ -14,24 +14,17 @@
 @implementation CDAppDelegate
 @synthesize window = _window;
 
-- (void)dealloc {
-    [_window release];
-    [super dealloc];
-}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
     UITabBarController * tabbarController = [[UITabBarController alloc] init];
     UIViewController * toiletsViewController = [[CDToiletsMapViewController alloc] initWithNibName:@"CDMapViewController" bundle:nil];
-    toiletsViewController.tabBarItem = [[[UITabBarItem alloc] initWithTitle:@"Free Toilets" image:[UIImage imageNamed:@"CDToiletItem.png"] tag:0] autorelease];
+    toiletsViewController.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Free Toilets" image:[UIImage imageNamed:@"CDToiletItem.png"] tag:0];
     UIViewController * streetlightsViewController = [[CDStreetlightsMapViewController alloc] initWithNibName:@"CDMapViewController" bundle:nil];
-    streetlightsViewController.tabBarItem = [[[UITabBarItem alloc] initWithTitle:@"Streetlights" image:[UIImage imageNamed:@"CDStreetlightItem.png"] tag:0] autorelease];
+    streetlightsViewController.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Streetlights" image:[UIImage imageNamed:@"CDStreetlightItem.png"] tag:0];
     tabbarController.viewControllers = [NSArray arrayWithObjects:toiletsViewController, streetlightsViewController, nil];
-    [streetlightsViewController release];
-    [toiletsViewController release];
     self.window.rootViewController = tabbarController;
-    [tabbarController release];
     [self.window makeKeyAndVisible];
     return YES;
 }

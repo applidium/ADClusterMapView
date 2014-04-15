@@ -21,13 +21,14 @@
 @synthesize clusterCoordinate = _clusterCoordinate;
 @synthesize annotation = _annotation;
 @synthesize depth = _depth;
+@synthesize showSubtitle = _showSubtitle;
 
 - (id)initWithAnnotations:(NSArray *)annotations atDepth:(NSInteger)depth inMapRect:(MKMapRect)mapRect gamma:(double)gamma clusterTitle:(NSString *)clusterTitle showSubtitle:(BOOL)showSubtitle {
     self = [super init];
     if (self) {
         _depth = depth;
         _mapRect = mapRect;
-        _clusterTitle = [clusterTitle retain];
+        _clusterTitle = clusterTitle;
         _showSubtitle = showSubtitle;
         if (annotations.count == 0) {
             _leftChild = nil;
@@ -123,8 +124,8 @@
             if (fabs(sumXsquared)/annotations.count < ADMapClusterDiscriminationPrecision || fabs(sumYsquared)/annotations.count < ADMapClusterDiscriminationPrecision) { // all X and Y are the same => same coordinates
                 // then every x equals XMean and we have to arbitrarily choose where to put the pivotIndex
                 NSInteger pivotIndex = annotations.count /2 ;
-                leftAnnotations = [[annotations subarrayWithRange:NSMakeRange(0, pivotIndex)] retain];
-                rightAnnotations = [[annotations subarrayWithRange:NSMakeRange(pivotIndex, annotations.count-pivotIndex)] retain];
+                leftAnnotations = [annotations subarrayWithRange:NSMakeRange(0, pivotIndex)];
+                rightAnnotations = [annotations subarrayWithRange:NSMakeRange(pivotIndex, annotations.count-pivotIndex)];
             } else {
                 // compute scalar product between the vector of this regression line and the vector
                 // (x - x(mean))
@@ -193,19 +194,16 @@
             _leftChild = [[ADMapCluster alloc] initWithAnnotations:leftAnnotations atDepth:depth+1 inMapRect:leftMapRect gamma:gamma clusterTitle:clusterTitle showSubtitle:showSubtitle];
             _rightChild = [[ADMapCluster alloc] initWithAnnotations:rightAnnotations atDepth:depth+1 inMapRect:rightMapRect gamma:gamma clusterTitle:clusterTitle showSubtitle:showSubtitle];
             
-            [leftAnnotations release];
-            [rightAnnotations release];
         }
     }
     return self;
 }
 
 - (void)dealloc {
-    [_leftChild release], _leftChild = nil;
-    [_rightChild release], _rightChild = nil;
-    [_annotation release], _annotation = nil;
-    [_clusterTitle release], _clusterTitle = nil;
-    [super dealloc];
+    _leftChild = nil;
+    _rightChild = nil;
+    _annotation = nil;
+    _clusterTitle = nil;
 }
 
 + (ADMapCluster *)rootClusterForAnnotations:(NSArray *)initialAnnotations gamma:(double)gamma clusterTitle:(NSString *)clusterTitle showSubtitle:(BOOL)showSubtitle {
@@ -234,7 +232,7 @@
     NSLog(@"Computing KD-tree...");
     ADMapCluster * cluster = [[ADMapCluster alloc] initWithAnnotations:initialAnnotations atDepth:0 inMapRect:boundaries gamma:gamma clusterTitle:clusterTitle showSubtitle:showSubtitle];
     NSLog(@"Computation done !");
-    return [cluster autorelease];
+    return cluster;
 }
 
 - (NSArray *)find:(NSInteger)N childrenInMapRect:(MKMapRect)mapRect {
@@ -249,9 +247,7 @@
     NSMutableArray * previousLevelAnnotations = nil;
     BOOL clustersDidChange = YES; // prevents infinite loop at the bottom of the tree
     while (clusters.count + annotations.count < N && clusters.count > 0 && clustersDidChange) {
-        [previousLevelAnnotations release];
         previousLevelAnnotations = [annotations mutableCopy];
-        [previousLevelClusters release];
         previousLevelClusters = [clusters mutableCopy];
         
         clustersDidChange = NO;
@@ -268,28 +264,21 @@
             }
         }  
         if (nextLevelClusters.count > 0) {
-            [clusters release];
-            clusters = [nextLevelClusters retain];
+            clusters = nextLevelClusters;
             clustersDidChange = YES;
         }
-        [nextLevelClusters release];
     }
     [self _cleanClusters:clusters fromAncestorsOfClusters:annotations];
     
     if (clusters.count + annotations.count > N) { // if there are too many clusters and annotations, that means that we went one level too far in depth
-        [clusters release];
-        clusters = [previousLevelClusters retain];
-        [annotations release];
-        annotations = [previousLevelAnnotations retain];
+        clusters = previousLevelClusters;
+        annotations = previousLevelAnnotations;
         [self _cleanClusters:clusters fromAncestorsOfClusters:annotations];
     }
-    [previousLevelClusters release];
-    [previousLevelAnnotations release];
     [self _cleanClusters:clusters outsideMapRect:mapRect];
     [annotations addObjectsFromArray:clusters];
-    [clusters release];
     
-    return [annotations autorelease];
+    return annotations;
 }
 
 - (NSArray *)children {
@@ -300,7 +289,7 @@
     if (_rightChild != nil) {
         [children addObject:_rightChild];
     }
-    return [children autorelease];
+    return children;
 }
 
 - (BOOL)isAncestorOf:(ADMapCluster *)mapCluster {
@@ -361,10 +350,10 @@
         originalAnnotations = [[NSMutableArray alloc] init];
         [originalAnnotations addObject:self.annotation.annotation];
     } else {
-        originalAnnotations = [_leftChild.originalAnnotations retain];
+        originalAnnotations = _leftChild.originalAnnotations;
         [originalAnnotations addObjectsFromArray:_rightChild.originalAnnotations];
     }
-    return [originalAnnotations autorelease];
+    return originalAnnotations;
 }
 @end
 
@@ -385,7 +374,6 @@
         }
     }
     [clusters removeObjectsInArray:clustersToRemove];
-    [clustersToRemove release];
 }
 - (void)_cleanClusters:(NSMutableArray *)clusters outsideMapRect:(MKMapRect)mapRect {
     NSMutableArray * clustersToRemove = [[NSMutableArray alloc] init];
@@ -395,6 +383,5 @@
         }
     }
     [clusters removeObjectsInArray:clustersToRemove];
-    [clustersToRemove release];
 }
 @end
