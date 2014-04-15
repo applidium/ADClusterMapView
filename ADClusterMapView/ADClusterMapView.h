@@ -27,5 +27,5 @@
 - (ADClusterAnnotation *)clusterAnnotationForOriginalAnnotation:(id<MKAnnotation>)annotation; // returns the ADClusterAnnotation instance containing the annotation originally added.
 - (void)selectClusterAnnotation:(ADClusterAnnotation *)annotation animated:(BOOL)animated;
 - (void)setAnnotations:(NSArray *)annotations;
-@property (nonatomic, readonly) NSArray * displayedAnnotations;
+@property (weak, nonatomic, readonly) NSArray * displayedAnnotations;
 @end

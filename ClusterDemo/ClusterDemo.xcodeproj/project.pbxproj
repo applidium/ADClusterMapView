@@ -379,6 +379,7 @@
 		6F8FE9BE16249223001A0309 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ClusterDemo-Prefix.pch";
 				INFOPLIST_FILE = "$(SRCROOT)/ClusterDemo-Info.plist";
@@ -391,6 +392,7 @@
 		6F8FE9BF16249223001A0309 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ClusterDemo-Prefix.pch";
 				INFOPLIST_FILE = "$(SRCROOT)/ClusterDemo-Info.plist";
