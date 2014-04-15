@@ -174,6 +174,9 @@
         _shouldComputeClusters = NO;
         [self _clusterInMapRect:self.visibleMapRect];
     }
+    if ([_secondaryDelegate respondsToSelector:@selector(clusterAnimationDidStopForMapView:)]) {
+        [_secondaryDelegate clusterAnimationDidStopForMapView:self];
+    }
 }
 
 #pragma mark - MKMapViewDelegate
@@ -209,9 +212,6 @@
     }
     if ([_secondaryDelegate respondsToSelector:@selector(mapView:regionDidChangeAnimated:)]) {
         [_secondaryDelegate mapView:self regionDidChangeAnimated:animated];
-    }
-    if ([_secondaryDelegate respondsToSelector:@selector(clusterAnimationDidStopForMapView:)]) {
-        [_secondaryDelegate clusterAnimationDidStopForMapView:self];
     }
 }
 
