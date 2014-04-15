@@ -1,3 +1,9 @@
+## 1.1.0 (under development)
+
+Features:
+
+  - Use ARC
+
 ## 1.0.3 (15 April 2014)
 
 Bugfixes:
