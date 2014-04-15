@@ -3,6 +3,7 @@
 Features:
 
   - Use ARC
+  - `annotations` now returns an array of the annotations that the user added instead of ADClusterAnnotation instances.
 
 ## 1.0.3 (15 April 2014)
 
