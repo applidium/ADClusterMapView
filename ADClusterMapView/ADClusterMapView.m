@@ -295,7 +295,7 @@
                                        self.visibleMapRect.origin.y - self.visibleMapRect.size.height *0.1,
                                        self.visibleMapRect.size.width  *1.2,
                                        self.visibleMapRect.size.height *1.2);
-        [self _clusterInMapRect:rect];
+        [self _clusterInMapRect:rect];  //bigger region enhances feel of "annotations everywhere", not only on visibleRegion
     }
     for (id<MKAnnotation> annotation in [self selectedAnnotations]) {
         [self deselectAnnotation:annotation animated:YES];

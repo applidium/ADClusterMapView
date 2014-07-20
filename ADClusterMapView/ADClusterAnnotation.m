@@ -53,8 +53,6 @@ BOOL ADClusterCoordinate2DIsOffscreen(CLLocationCoordinate2D coord) {
 }
 
 - (NSArray *)originalAnnotations {
-    if (self.cluster == nil)
-        NSLog(@""); 
     NSAssert(self.cluster != nil, @"This annotation should have a cluster assigned!");
     return self.cluster.originalAnnotations;
 }
