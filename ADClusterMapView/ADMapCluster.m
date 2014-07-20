@@ -16,6 +16,13 @@
     ADMapCluster * _rightChild;
     MKMapRect _mapRect;
     NSString * _clusterTitle;
+    
+    //Variables needed global for adding annotations
+    //Principal vector
+    double aX;
+    double aY;
+    
+    BOOL decidedArbitrarily;  //determines, whether division pivot was decided arbitrarily
 }
 
 @end
@@ -111,8 +118,8 @@
                 sumXY += x * y;
             }
 
-            double aX = 0.0;
-            double aY = 0.0;
+            aX = 0.0;
+            aY = 0.0;
 
             if (fabs(sumXY)/annotations.count > ADMapClusterDiscriminationPrecision) {
                 aX = sumXY;
@@ -128,6 +135,7 @@
 
             if (fabs(sumXsquared)/annotations.count < ADMapClusterDiscriminationPrecision || fabs(sumYsquared)/annotations.count < ADMapClusterDiscriminationPrecision) { // all X and Y are the same => same coordinates
                 // then every x equals XMean and we have to arbitrarily choose where to put the pivotIndex
+                decidedArbitrarily = YES; //needed for adding annotations
                 NSInteger pivotIndex = annotations.count /2 ;
                 leftAnnotations = [annotations subarrayWithRange:NSMakeRange(0, pivotIndex)];
                 rightAnnotations = [annotations subarrayWithRange:NSMakeRange(pivotIndex, annotations.count-pivotIndex)];
@@ -136,6 +144,7 @@
                 // (x - x(mean))
                 // (y - y(mean))
                 // the sign of this scalar product determines which cluster the point belongs to
+                decidedArbitrarily = NO; //needed for adding annotations
                 leftAnnotations = [[NSMutableArray alloc] initWithCapacity:annotations.count];
                 rightAnnotations = [[NSMutableArray alloc] initWithCapacity:annotations.count];
                 for (ADMapPointAnnotation * annotation in annotations) {
@@ -154,46 +163,10 @@
                 }
             }
 
-            MKMapRect leftMapRect = MKMapRectNull;
-            MKMapRect rightMapRect = MKMapRectNull;
-
             // compute map rects
-            double XMin = MAXFLOAT, XMax = 0.0, YMin = MAXFLOAT, YMax = 0.0;
-            for (ADMapPointAnnotation * annotation in leftAnnotations) {
-                const MKMapPoint point = annotation.mapPoint;
-                if (point.x > XMax) {
-                    XMax = point.x;
-                }
-                if (point.y > YMax) {
-                    YMax = point.y;
-                }
-                if (point.x < XMin) {
-                    XMin = point.x;
-                }
-                if (point.y < YMin) {
-                    YMin = point.y;
-                }
-            }
-            leftMapRect = MKMapRectMake(XMin, YMin, XMax - XMin, YMax - YMin);
-
-            XMin = MAXFLOAT, XMax = 0.0, YMin = MAXFLOAT, YMax = 0.0;
-            for (ADMapPointAnnotation * annotation in rightAnnotations) {
-                const MKMapPoint point = annotation.mapPoint;
-                if (point.x > XMax) {
-                    XMax = point.x;
-                }
-                if (point.y > YMax) {
-                    YMax = point.y;
-                }
-                if (point.x < XMin) {
-                    XMin = point.x;
-                }
-                if (point.y < YMin) {
-                    YMin = point.y;
-                }
-            }
-            rightMapRect = MKMapRectMake(XMin, YMin, XMax - XMin, YMax - YMin);
-
+            MKMapRect leftMapRect = [ADMapCluster computeBoundariesForAnnotations:leftAnnotations];
+            MKMapRect rightMapRect = [ADMapCluster computeBoundariesForAnnotations:rightAnnotations];
+            
             _clusterCoordinate = MKCoordinateForMapPoint(MKMapPointMake(XMean, YMean));
 
             _leftChild = [[ADMapCluster alloc] initWithAnnotations:leftAnnotations atDepth:depth+1 inMapRect:leftMapRect gamma:gamma clusterTitle:clusterTitle showSubtitle:showSubtitle];
@@ -207,30 +180,109 @@
 + (ADMapCluster *)rootClusterForAnnotations:(NSArray *)initialAnnotations gamma:(double)gamma clusterTitle:(NSString *)clusterTitle showSubtitle:(BOOL)showSubtitle {
     // KDTree
 
-    MKMapRect boundaries = MKMapRectWorld;
-
     // This is optional
-    boundaries = MKMapRectMake(HUGE_VALF, HUGE_VALF, 0.0, 0.0);
-    for (ADMapPointAnnotation * annotation in initialAnnotations) {
-        MKMapPoint point = annotation.mapPoint;
-        if (point.x < boundaries.origin.x) {
-            boundaries.origin.x = point.x;
-        }
-        if (point.y < boundaries.origin.y) {
-            boundaries.origin.y = point.y;
-        }
-        if (point.x > boundaries.origin.x + boundaries.size.width) {
-            boundaries.size.width = point.x - boundaries.origin.x;
-        }
-        if (point.y > boundaries.origin.y + boundaries.size.height) {
-            boundaries.size.height = point.y - boundaries.origin.y;
-        }
-    }
+    MKMapRect boundaries = [ADMapCluster computeBoundariesForAnnotations:initialAnnotations];
 
     NSLog(@"Computing KD-tree...");
     ADMapCluster * cluster = [[ADMapCluster alloc] initWithAnnotations:initialAnnotations atDepth:0 inMapRect:boundaries gamma:gamma clusterTitle:clusterTitle showSubtitle:showSubtitle];
     NSLog(@"Computation done !");
     return cluster;
+}
+
+- (void)addClustersForAnnotations:(NSArray *)annotations gamma:(double)gamma clusterTitle:(NSString *)clusterTitle showSubtitle:(BOOL)showSubtitle
+{
+    // Goes depth-first through the KD Tree adding new clusters to their position
+    // Recalculates boundaries of cluster annotations
+    // Recalculates new mean of cluster
+    
+    NSArray * leftAnnotations = nil;
+    NSArray * rightAnnotations = nil;
+    
+    // Recalculation of mean
+    double XSum = MKMapPointForCoordinate(_clusterCoordinate).x * [self numberOfChildren];
+    double YSum = MKMapPointForCoordinate(_clusterCoordinate).y * [self numberOfChildren];
+    for (ADMapPointAnnotation* annotation in annotations) {
+        XSum += annotation.mapPoint.x;
+        YSum += annotation.mapPoint.y;
+    }
+    double XMean = XSum / ([self numberOfChildren]+[annotations count]);
+    double YMean = YSum / ([self numberOfChildren]+[annotations count]);
+    _clusterCoordinate = MKCoordinateForMapPoint(MKMapPointMake(XMean, YMean));
+    
+    // Recalculation of boundaries
+    MKMapRect nAB = [ADMapCluster computeBoundariesForAnnotations:annotations];  //new annotations boundaries
+    double minX = MIN(nAB.origin.x, _mapRect.origin.x);
+    double minY = MIN(nAB.origin.y, _mapRect.origin.y);
+    double maxX = MAX(nAB.origin.x + nAB.size.width, _mapRect.origin.x + _mapRect.size.width);
+    double maxY = MAX(nAB.origin.y + nAB.size.height, _mapRect.origin.y + _mapRect.size.height);
+    _mapRect = MKMapRectMake(minX, minY, maxX - minX, maxY - minY);
+    
+    // Deciding which branch to go
+    if (decidedArbitrarily)
+    { // all X and Y are the same => same coordinates
+        // then every x equals XMean and we have to arbitrarily choose where to put the pivotIndex
+        NSInteger pivotIndex = annotations.count /2 ;
+        leftAnnotations = [annotations subarrayWithRange:NSMakeRange(0, pivotIndex)];
+        rightAnnotations = [annotations subarrayWithRange:NSMakeRange(pivotIndex, annotations.count-pivotIndex)];
+    } else {
+        // compute scalar product between the vector of this regression line and the vector
+        // (x - x(mean))
+        // (y - y(mean))
+        // the sign of this scalar product determines which cluster the point belongs to
+        leftAnnotations = [[NSMutableArray alloc] initWithCapacity:annotations.count];
+        rightAnnotations = [[NSMutableArray alloc] initWithCapacity:annotations.count];
+        for (ADMapPointAnnotation * annotation in annotations) {
+            const MKMapPoint point = annotation.mapPoint;
+            BOOL positivityConditionOfScalarProduct = YES;
+            if (YES) {
+                positivityConditionOfScalarProduct = (point.x - XMean) * aX + (point.y - YMean) * aY > 0.0;
+            } else {
+                positivityConditionOfScalarProduct = (point.y - YMean) > 0.0;
+            }
+            if (positivityConditionOfScalarProduct) {
+                [(NSMutableArray *)leftAnnotations addObject:annotation];
+            } else {
+                [(NSMutableArray *)rightAnnotations addObject:annotation];
+            }
+        }
+    }
+    
+    if ([_leftChild numberOfChildren] <= 1)
+    {
+        NSArray* initialAnnotations = [leftAnnotations arrayByAddingObject:_leftChild.annotation];
+        _leftChild = [[ADMapCluster alloc] initWithAnnotations:initialAnnotations atDepth:_depth+1 inMapRect:[ADMapCluster computeBoundariesForAnnotations:initialAnnotations] gamma:gamma clusterTitle:clusterTitle showSubtitle:showSubtitle];
+    } else        
+        [_leftChild addClustersForAnnotations:leftAnnotations gamma:gamma clusterTitle:clusterTitle showSubtitle:showSubtitle];
+    
+    if ([_rightChild numberOfChildren] <= 1)
+    {
+        NSArray* initialAnnotations = [rightAnnotations arrayByAddingObject:_rightChild.annotation];
+        _rightChild = [[ADMapCluster alloc] initWithAnnotations:initialAnnotations atDepth:_depth+1 inMapRect:[ADMapCluster computeBoundariesForAnnotations:initialAnnotations] gamma:gamma clusterTitle:clusterTitle showSubtitle:showSubtitle];
+    } else
+        [_rightChild addClustersForAnnotations:rightAnnotations gamma:gamma clusterTitle:clusterTitle showSubtitle:showSubtitle];
+
+}
+
++ (MKMapRect)computeBoundariesForAnnotations:(NSArray*)annotations
+{
+    double XMin = MAXFLOAT, XMax = 0.0, YMin = MAXFLOAT, YMax = 0.0;
+    for (ADMapPointAnnotation * annotation in annotations) {
+        const MKMapPoint point = annotation.mapPoint;
+        if (point.x > XMax) {
+            XMax = point.x;
+        }
+        if (point.y > YMax) {
+            YMax = point.y;
+        }
+        if (point.x < XMin) {
+            XMin = point.x;
+        }
+        if (point.y < YMin) {
+            YMin = point.y;
+        }
+    }
+
+    return MKMapRectMake(XMin, YMin, XMax - XMin, YMax - YMin);
 }
 
 - (NSArray *)find:(NSInteger)N childrenInMapRect:(MKMapRect)mapRect {

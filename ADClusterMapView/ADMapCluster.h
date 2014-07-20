@@ -20,10 +20,13 @@
 @property (nonatomic, assign) BOOL showSubtitle;
 - (id)initWithAnnotations:(NSArray *)annotations atDepth:(NSInteger)depth inMapRect:(MKMapRect)mapRect gamma:(double)gamma clusterTitle:(NSString *)clusterTitle showSubtitle:(BOOL)showSubtitle;
 + (ADMapCluster *)rootClusterForAnnotations:(NSArray *)annotations gamma:(double)gamma clusterTitle:(NSString *)clusterTitle showSubtitle:(BOOL)showSubtitle;
++ (MKMapRect)computeBoundariesForAnnotations:(NSArray*)annotations;
 - (NSArray *)find:(NSInteger)N childrenInMapRect:(MKMapRect)mapRect;
 - (NSArray *)children;
 - (BOOL)isAncestorOf:(ADMapCluster *)mapCluster;
 - (BOOL)isRootClusterForAnnotation:(id<MKAnnotation>)annotation;
 - (NSInteger)numberOfChildren;
 - (NSArray *)namesOfChildren;
+
+- (void)addClustersForAnnotations:(NSArray *)annotations gamma:(double)gamma clusterTitle:(NSString *)clusterTitle showSubtitle:(BOOL)showSubtitle;
 @end

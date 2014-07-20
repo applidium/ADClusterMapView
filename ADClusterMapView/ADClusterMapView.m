@@ -23,6 +23,8 @@
     NSArray *                      _annotationsToBeSet;
     NSArray *                      _originalAnnotations;
     NSArray *                      _clusterAnnotations;
+    
+    NSArray *                      _annotationsToBeAdd;
 }
 
 @end
@@ -99,12 +101,78 @@
     }
 }
 
-- (void)addAnnotation:(id<MKAnnotation>)annotation {
-    NSAssert(FALSE, @"Unsupported method call in ADClusterMapView instance! Please call setAnnotations: instead.");
+- (void)addAnnotation:(id<MKAnnotation>)annotation
+{
+    if (annotation)
+        [self addAnnotations:[NSArray arrayWithObject:annotation]];
 }
 
-- (void)addAnnotations:(NSArray *)annotations {
-    NSAssert(FALSE, @"Unsupported method call in ADClusterMapView instance! Please call setAnnotations: instead.");
+- (void)addAnnotations:(NSArray *)annotations
+{
+    if (!annotations || [annotations count] < 1)
+    {
+        NSLog(@"No annotations to add.");
+        return;
+    }
+    
+    if ([_rootMapCluster numberOfChildren] <= 1 && !_rootMapCluster.annotation) //if there are no annotations in the root cluster
+    {
+        [self setAnnotations:annotations];
+        return;
+    }
+    
+    if (!_isSettingAnnotations) {
+        _originalAnnotations = [_originalAnnotations arrayByAddingObjectsFromArray:annotations];
+        _isSettingAnnotations = YES;
+        
+        double gamma = 1.0; // default value
+        if ([_secondaryDelegate respondsToSelector:@selector(clusterDiscriminationPowerForMapView:)]) {
+            gamma = [_secondaryDelegate clusterDiscriminationPowerForMapView:self];
+        }
+        
+        NSString * clusterTitle = @"%d elements";
+        if ([_secondaryDelegate respondsToSelector:@selector(clusterTitleForMapView:)]) {
+            clusterTitle = [_secondaryDelegate clusterTitleForMapView:self];
+        }
+        
+        // Setting visibility of cluster annotations subtitle (defaults to YES)
+        BOOL shouldShowSubtitle = YES;
+        if ([_secondaryDelegate respondsToSelector:@selector(shouldShowSubtitleForClusterAnnotationsInMapView:)]) {
+            shouldShowSubtitle = [_secondaryDelegate shouldShowSubtitleForClusterAnnotationsInMapView:self];
+        }
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+            // use wrapper annotations that expose a MKMapPoint property instead of a CLLocationCoordinate2D property
+            NSMutableArray * mapPointAnnotations = [[NSMutableArray alloc] initWithCapacity:annotations.count];
+            for (id<MKAnnotation> annotation in annotations) {
+                ADMapPointAnnotation * mapPointAnnotation = [[ADMapPointAnnotation alloc] initWithAnnotation:annotation];
+                [mapPointAnnotations addObject:mapPointAnnotation];
+            }
+            
+            if ([_rootMapCluster numberOfChildren] <= 1) //if there is only one annotation in the cluster, KD tree needs to be rebuilt
+            {
+                NSArray* newAndOldMapPointAnnotations = [mapPointAnnotations arrayByAddingObject:_rootMapCluster.annotation];
+                _rootMapCluster = [ADMapCluster rootClusterForAnnotations:newAndOldMapPointAnnotations gamma:gamma clusterTitle:clusterTitle showSubtitle:shouldShowSubtitle];
+            } else
+                [_rootMapCluster addClustersForAnnotations:mapPointAnnotations gamma:gamma clusterTitle:clusterTitle showSubtitle:shouldShowSubtitle];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self _clusterInMapRect:self.visibleMapRect];
+                if ([_secondaryDelegate respondsToSelector:@selector(mapViewDidFinishAddingClusters:)]) {
+                    [_secondaryDelegate mapViewDidFinishAddingClusters:self];
+                }
+                _isSettingAnnotations = NO;
+                if (_annotationsToBeAdd) {
+                    NSArray * annotations = _annotationsToBeAdd;
+                    _annotationsToBeAdd = nil;
+                    [self addAnnotations:annotations];
+                }
+            });
+        });
+    } else {
+        // keep the annotations for adding them later
+        _annotationsToBeAdd = annotations;
+    }
 }
 
 - (void)selectAnnotation:(id<MKAnnotation>)annotation animated:(BOOL)animated {
@@ -222,7 +290,12 @@
         _shouldComputeClusters = YES;
     } else {
         _isAnimatingClusters = YES;
-        [self _clusterInMapRect:self.visibleMapRect];
+        
+        MKMapRect rect = MKMapRectMake(self.visibleMapRect.origin.x - self.visibleMapRect.size.width  *0.1,
+                                       self.visibleMapRect.origin.y - self.visibleMapRect.size.height *0.1,
+                                       self.visibleMapRect.size.width  *1.2,
+                                       self.visibleMapRect.size.height *1.2);
+        [self _clusterInMapRect:rect];
     }
     for (id<MKAnnotation> annotation in [self selectedAnnotations]) {
         [self deselectAnnotation:annotation animated:YES];
