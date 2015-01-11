@@ -23,6 +23,7 @@ BOOL ADClusterCoordinate2DIsOffscreen(CLLocationCoordinate2D coord) {
         self.coordinate = kADCoordinate2DOffscreen;
         _type = ADClusterAnnotationTypeUnknown;
         _shouldBeRemovedAfterAnimation = NO;
+        _title = @"Title";
     }
     return self;
 }

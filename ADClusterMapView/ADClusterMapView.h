@@ -11,25 +11,35 @@
 #import "ADMapCluster.h"
 #import "ADClusterAnnotation.h"
 
+extern NSString * const TSMapViewWillChangeRegion;
+extern NSString * const TSMapViewDidChangeRegion;
+
 @class ADClusterMapView;
-@protocol ADClusterMapViewDelegate <MKMapViewDelegate>
+@protocol ADClusterMapViewDelegate <MKMapViewDelegate, UIGestureRecognizerDelegate>
 @optional
-- (NSInteger)numberOfClustersInMapView:(ADClusterMapView *)mapView; // default: 32
+- (NSUInteger)numberOfClustersInMapView:(ADClusterMapView *)mapView; // default: 32
 - (MKAnnotationView *)mapView:(ADClusterMapView *)mapView viewForClusterAnnotation:(id <MKAnnotation>)annotation; // default: same as returned by mapView:viewForAnnotation:
 - (BOOL)shouldShowSubtitleForClusterAnnotationsInMapView:(ADClusterMapView *)mapView; // default: YES
 - (double)clusterDiscriminationPowerForMapView:(ADClusterMapView *)mapView; // This parameter emphasize the discrimination of annotations which are far away from the center of mass. default: 1.0 (no discrimination applied)
 - (NSString *)clusterTitleForMapView:(ADClusterMapView *)mapView; // default : @"%d elements"
 - (void)clusterAnimationDidStopForMapView:(ADClusterMapView *)mapView;
 - (void)mapViewDidFinishClustering:(ADClusterMapView *)mapView;
+- (void)userWillPanMapView:(ADClusterMapView *)mapView;
+- (void)userDidPanMapView:(ADClusterMapView *)mapView;
+
 @end
 
-@interface ADClusterMapView : MKMapView <MKMapViewDelegate>
+@interface ADClusterMapView : MKMapView <MKMapViewDelegate, UIGestureRecognizerDelegate>
+
+@property (nonatomic, strong) NSSet *clusterAnnotations;
+- (NSUInteger)numberOfClusters;
+
 - (ADClusterAnnotation *)clusterAnnotationForOriginalAnnotation:(id<MKAnnotation>)annotation; // returns the ADClusterAnnotation instance containing the annotation originally added.
 - (void)selectClusterAnnotation:(ADClusterAnnotation *)annotation animated:(BOOL)animated;
-- (void)setAnnotations:(NSArray *)annotations; // entry point for the annotations that you want to cluster
-- (void)addNonClusteredAnnotations:(NSArray *)annotations;
-- (void)addNonClusteredAnnotation:(id<MKAnnotation>)annotation;
-- (void)removeNonClusteredAnnotations:(NSArray *)annotations;
-- (void)removeNonClusteredAnnotation:(id<MKAnnotation>)annotation;
+
+- (void)addClusteredAnnotation:(id<MKAnnotation>)annotation;
+- (void)addClusteredAnnotations:(NSArray *)annotations;
+
+- (void)needsRefresh;
 @property (weak, nonatomic, readonly) NSArray * displayedAnnotations;
 @end
