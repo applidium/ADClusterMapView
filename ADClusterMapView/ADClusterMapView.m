@@ -168,6 +168,13 @@
     return respondsToSelector;
 }
 
+- (id)forwardingTargetForSelector:(SEL)aSelector {
+    if ([_secondaryDelegate respondsToSelector:aSelector]) {
+        return _secondaryDelegate;
+    }
+    return [super forwardingTargetForSelector:aSelector];
+}
+
 - (void)forwardInvocation:(NSInvocation *)anInvocation {
     if ([_secondaryDelegate respondsToSelector:[anInvocation selector]]) {
         [anInvocation invokeWithTarget:_secondaryDelegate];
