@@ -13,7 +13,7 @@
 
 @interface ADClusterMapView () {
 @private
-    id <ADClusterMapViewDelegate>  _secondaryDelegate;
+    __weak id <ADClusterMapViewDelegate>  _secondaryDelegate;
     ADMapCluster *                 _rootMapCluster;
     NSMutableArray *               _singleAnnotationsPool;
     NSMutableArray *               _clusterAnnotationsPool;
