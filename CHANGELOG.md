@@ -1,3 +1,10 @@
+## 1.1.1 (17 June 2016)
+
+Bugfixes:
+
+  - Fix potential crash when forwarding selectors
+  - Secondary delegate is now weak to prevent retain cycles
+
 ## 1.1.0 (17 November 2014)
 
 Features:
