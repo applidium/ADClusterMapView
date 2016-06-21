@@ -55,6 +55,7 @@
     for (int i = 0; i < annotations.count; i++) {
         ADClusterAnnotation * annotation = [[ADClusterAnnotation alloc] init];
         annotation.type = ADClusterAnnotationTypeLeaf;
+        annotation.coordinate = [annotations[i] coordinate];
         [leafClusterAnnotations addObject:annotation];
     }
     [self addAnnotations:leafClusterAnnotations];
@@ -86,6 +87,9 @@
 
         dispatch_async(dispatch_get_main_queue(), ^{
             [self _clusterInMapRect:self.visibleMapRect];
+            NSPredicate * predicate = [NSPredicate predicateWithFormat:@"%K = nil", NSStringFromSelector(@selector(cluster))];
+            NSArray * annotationNotDisplayedAfterClustering = [self.clusterAnnotations filteredArrayUsingPredicate:predicate];
+            [self removeAnnotations:annotationNotDisplayedAfterClustering];
             if ([_secondaryDelegate respondsToSelector:@selector(mapViewDidFinishClustering:)]) {
                 [_secondaryDelegate mapViewDidFinishClustering:self];
             }
