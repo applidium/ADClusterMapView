@@ -125,6 +125,10 @@
     return [self annotationsInMapRect:self.visibleMapRect].allObjects;
 }
 
+- (NSArray *)displayedClusterAnnotations {
+    return [self.displayedAnnotations filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self isKindOfClass: %@", [ADClusterAnnotation class]]];
+}
+
 - (void)addNonClusteredAnnotation:(id<MKAnnotation>)annotation {
     [super addAnnotation:annotation];
 }
@@ -247,7 +251,7 @@
     NSMutableArray * annotationToRemoveFromMap = [[NSMutableArray alloc] init];
     NSMutableArray * annotationToAddToMap = [[NSMutableArray alloc] init];
     NSMutableArray * selfDividingAnnotations = [[NSMutableArray alloc] init];
-    NSArray * displayedAnnotation = self.clusterAnnotations;
+    NSArray * displayedAnnotation = self.displayedClusterAnnotations;
     for (ADClusterAnnotation * annotation in displayedAnnotation) {
         if ([annotation isKindOfClass:[MKUserLocation class]] || !annotation.cluster) {
             continue;

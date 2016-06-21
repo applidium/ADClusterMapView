@@ -31,5 +31,6 @@
 - (void)addNonClusteredAnnotation:(id<MKAnnotation>)annotation;
 - (void)removeNonClusteredAnnotations:(NSArray *)annotations;
 - (void)removeNonClusteredAnnotation:(id<MKAnnotation>)annotation;
-@property (weak, nonatomic, readonly) NSArray * displayedAnnotations;
+@property (nonatomic, readonly) NSArray * displayedAnnotations;
+@property (nonatomic, readonly) NSArray * displayedClusterAnnotations;
 @end
