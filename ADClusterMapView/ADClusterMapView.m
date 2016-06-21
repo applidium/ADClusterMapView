@@ -203,7 +203,7 @@
     ADClusterAnnotation * annotation = [[ADClusterAnnotation alloc] init];
     annotation.type = (cluster.numberOfChildren == 1) ? ADClusterAnnotationTypeLeaf : ADClusterAnnotationTypeCluster;
     annotation.cluster = cluster;
-    annotation.coordinate = ancestor.coordinate;
+    annotation.coordinate = (ancestor) ? ancestor.coordinate : cluster.clusterCoordinate;
     return annotation;
 }
 
@@ -293,9 +293,7 @@
             }
         }
         if (!isAlreadyAnnotated) {
-            ADClusterAnnotation * newAnnotation = [[ADClusterAnnotation alloc] init];
-            newAnnotation.cluster = cluster;
-            newAnnotation.coordinate = cluster.clusterCoordinate;
+            ADClusterAnnotation * newAnnotation = [self _newAnnotationWithCluster:cluster ancestorAnnotation:nil];
             [annotationToAddToMap addObject:newAnnotation];
         }
     }
