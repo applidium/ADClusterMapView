@@ -20,7 +20,9 @@
     BOOL                           _isSettingAnnotations;
     NSArray *                      _annotationsToBeSet;
 }
+@property (strong, nonatomic) NSMutableArray * clusterAnnotations;
 @property (strong, nonatomic) NSMutableArray * clusterAnnotationsToAddAfterAnimation;
+- (void)_initElements;
 - (ADClusterAnnotation *)_newAnnotationWithCluster:(ADMapCluster *)cluster ancestorAnnotation:(ADClusterAnnotation *)ancestor;
 - (void)_clusterInMapRect:(MKMapRect)rect;
 - (NSInteger)_numberOfClusters;
@@ -30,17 +32,32 @@
 
 @implementation ADClusterMapView
 
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        [self _initElements];
+    }
+    return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        [self _initElements];
+    }
+    return self;
+}
+
 - (void)setAnnotations:(NSArray *)annotations {
     _isSettingAnnotations = YES;
     [self removeAnnotations:self.annotations];
-    self.clusterAnnotationsToAddAfterAnimation = [[NSMutableArray alloc] init];
     NSMutableArray * leafClusterAnnotations = [[NSMutableArray alloc] initWithCapacity:annotations.count];;
     for (int i = 0; i < annotations.count; i++) {
         ADClusterAnnotation * annotation = [[ADClusterAnnotation alloc] init];
         annotation.type = ADClusterAnnotationTypeLeaf;
         [leafClusterAnnotations addObject:annotation];
     }
-    [super addAnnotations:leafClusterAnnotations];
+    [self addAnnotations:leafClusterAnnotations];
     double gamma = 1.0; // default value
     if ([_secondaryDelegate respondsToSelector:@selector(clusterDiscriminationPowerForMapView:)]) {
         gamma = [_secondaryDelegate clusterDiscriminationPowerForMapView:self];
@@ -77,11 +94,23 @@
 }
 
 - (void)addAnnotation:(id<MKAnnotation>)annotation {
-    NSAssert(FALSE, @"Unsupported method call in ADClusterMapView instance! Please call setAnnotations: instead.");
+    [self.clusterAnnotations addObject:annotation];
+    [super addAnnotation:annotation];
 }
 
 - (void)addAnnotations:(NSArray *)annotations {
-    NSAssert(FALSE, @"Unsupported method call in ADClusterMapView instance! Please call setAnnotations: instead.");
+    [self.clusterAnnotations addObjectsFromArray:annotations];
+    [super addAnnotations:annotations];
+}
+
+- (void)removeAnnotation:(id<MKAnnotation>)annotation {
+    [self.clusterAnnotations removeObject:annotation];
+    [super removeAnnotation:annotation];
+}
+
+- (void)removeAnnotations:(NSArray<id<MKAnnotation>> *)annotations {
+    [self.clusterAnnotations removeObjectsInArray:annotations];
+    [super removeAnnotations:annotations];
 }
 
 - (void)selectAnnotation:(id<MKAnnotation>)annotation animated:(BOOL)animated {
@@ -199,6 +228,11 @@
 }
 
 #pragma mark - Private
+- (void)_initElements {
+    _clusterAnnotations = [[NSMutableArray alloc] init];
+    _clusterAnnotationsToAddAfterAnimation = [[NSMutableArray alloc] init];
+}
+
 -(ADClusterAnnotation *)_newAnnotationWithCluster:(ADMapCluster *)cluster ancestorAnnotation:(ADClusterAnnotation *)ancestor {
     ADClusterAnnotation * annotation = [[ADClusterAnnotation alloc] init];
     annotation.type = (cluster.numberOfChildren == 1) ? ADClusterAnnotationTypeLeaf : ADClusterAnnotationTypeCluster;
@@ -213,7 +247,7 @@
     NSMutableArray * annotationToRemoveFromMap = [[NSMutableArray alloc] init];
     NSMutableArray * annotationToAddToMap = [[NSMutableArray alloc] init];
     NSMutableArray * selfDividingAnnotations = [[NSMutableArray alloc] init];
-    NSArray * displayedAnnotation = self.displayedAnnotations;
+    NSArray * displayedAnnotation = self.clusterAnnotations;
     for (ADClusterAnnotation * annotation in displayedAnnotation) {
         if ([annotation isKindOfClass:[MKUserLocation class]] || !annotation.cluster) {
             continue;
@@ -262,8 +296,8 @@
         }
     }
 
-    [super addAnnotations:annotationToAddToMap];
-    [super removeAnnotations:annotationToRemoveFromMap];
+    [self addAnnotations:annotationToAddToMap];
+    [self removeAnnotations:annotationToRemoveFromMap];
     displayedAnnotation = [self annotationsInMapRect:rect].allObjects;
     [UIView animateWithDuration:0.5f animations:^{
         for (ADClusterAnnotation * annotation in displayedAnnotation) {
@@ -297,7 +331,7 @@
             [annotationToAddToMap addObject:newAnnotation];
         }
     }
-    [super addAnnotations:annotationToAddToMap];
+    [self addAnnotations:annotationToAddToMap];
 }
 
 - (NSInteger)_numberOfClusters {
@@ -333,7 +367,7 @@
         }
     }
     [self removeAnnotations:annotationToRemove];
-    [super addAnnotations:self.clusterAnnotationsToAddAfterAnimation];
+    [self addAnnotations:self.clusterAnnotationsToAddAfterAnimation];
     [self.clusterAnnotationsToAddAfterAnimation removeAllObjects];
     _isAnimatingClusters = NO;
     if (_shouldComputeClusters) { // do one more computation if the user moved the map while animating
