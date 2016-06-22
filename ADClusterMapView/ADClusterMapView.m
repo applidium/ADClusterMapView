@@ -26,6 +26,8 @@
 - (NSInteger)_numberOfClusters;
 - (BOOL)_annotation:(ADClusterAnnotation *)annotation belongsToClusters:(NSArray *)clusters;
 - (void)_handleClusterAnimationEnded;
+- (void)_addClusterAnnotations:(NSArray <id <MKAnnotation>> *)annotations;
+- (void)_addClusterAnnotation:(id <MKAnnotation>)annotation;
 @end
 
 @implementation ADClusterMapView
@@ -55,7 +57,7 @@
         annotation.coordinate = [annotations[i] coordinate];
         [leafClusterAnnotations addObject:annotation];
     }
-    [self addAnnotations:leafClusterAnnotations];
+    [self _addClusterAnnotations:leafClusterAnnotations];
     double gamma = 1.0; // default value
     if ([_secondaryDelegate respondsToSelector:@selector(clusterDiscriminationPowerForMapView:)]) {
         gamma = [_secondaryDelegate clusterDiscriminationPowerForMapView:self];
@@ -95,13 +97,11 @@
 }
 
 - (void)addAnnotation:(id<MKAnnotation>)annotation {
-    [self.clusterAnnotations addObject:annotation];
-    [super addAnnotation:annotation];
+    NSAssert(NO, @"Cannot be used for now");
 }
 
 - (void)addAnnotations:(NSArray *)annotations {
-    [self.clusterAnnotations addObjectsFromArray:annotations];
-    [super addAnnotations:annotations];
+    NSAssert(NO, @"Cannot be used for now");
 }
 
 - (void)removeAnnotation:(id<MKAnnotation>)annotation {
@@ -301,7 +301,7 @@
         }
     }
 
-    [self addAnnotations:annotationToAddToMap];
+    [self _addClusterAnnotations:annotationToAddToMap];
     [self removeAnnotations:annotationToRemoveFromMap];
     displayedAnnotation = [self annotationsInMapRect:rect].allObjects;
     [UIView animateWithDuration:0.5f animations:^{
@@ -336,7 +336,7 @@
             [annotationToAddToMap addObject:newAnnotation];
         }
     }
-    [self addAnnotations:annotationToAddToMap];
+    [self _addClusterAnnotations:annotationToAddToMap];
 }
 
 - (NSInteger)_numberOfClusters {
@@ -372,7 +372,7 @@
         }
     }
     [self removeAnnotations:annotationToRemove];
-    [self addAnnotations:self.clusterAnnotationsToAddAfterAnimation];
+    [self _addClusterAnnotations:self.clusterAnnotationsToAddAfterAnimation];
     [self.clusterAnnotationsToAddAfterAnimation removeAllObjects];
     _isAnimatingClusters = NO;
     if (_shouldComputeClusters) { // do one more computation if the user moved the map while animating
@@ -382,6 +382,16 @@
     if ([_secondaryDelegate respondsToSelector:@selector(clusterAnimationDidStopForMapView:)]) {
         [_secondaryDelegate clusterAnimationDidStopForMapView:self];
     }
+}
+
+- (void)_addClusterAnnotation:(id<MKAnnotation>)annotation {
+    [self.clusterAnnotations addObject:annotation];
+    [super addAnnotation:annotation];
+}
+
+- (void)_addClusterAnnotations:(NSArray<id<MKAnnotation>> *)annotations {
+    [self.clusterAnnotations addObjectsFromArray:annotations];
+    [super addAnnotations:annotations];
 }
 
 @end
