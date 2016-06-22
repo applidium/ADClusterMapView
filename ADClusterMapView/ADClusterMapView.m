@@ -303,7 +303,7 @@
 
     [self _addClusterAnnotations:annotationToAddToMap];
     [self removeAnnotations:annotationToRemoveFromMap];
-    displayedAnnotation = [self annotationsInMapRect:rect].allObjects;
+    displayedAnnotation = self.displayedClusterAnnotations;
     [UIView animateWithDuration:0.5f animations:^{
         for (ADClusterAnnotation * annotation in displayedAnnotation) {
             if ([annotation isKindOfClass:[MKUserLocation class]]) {
