@@ -17,8 +17,6 @@
     ADMapCluster *                 _rootMapCluster;
     BOOL                           _isAnimatingClusters;
     BOOL                           _shouldComputeClusters;
-    BOOL                           _isSettingAnnotations;
-    NSArray *                      _annotationsToBeSet;
 }
 @property (strong, nonatomic) NSMutableArray * clusterAnnotations;
 @property (strong, nonatomic) NSMutableArray * clusterAnnotationsToAddAfterAnimation;
@@ -49,7 +47,6 @@
 }
 
 - (void)setAnnotations:(NSArray *)annotations {
-    _isSettingAnnotations = YES;
     [self removeAnnotations:self.annotations];
     NSMutableArray * leafClusterAnnotations = [[NSMutableArray alloc] initWithCapacity:annotations.count];;
     for (int i = 0; i < annotations.count; i++) {
