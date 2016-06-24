@@ -21,6 +21,7 @@
 - (NSString *)clusterTitleForMapView:(ADClusterMapView *)mapView; // default : @"%d elements"
 - (void)clusterAnimationDidStopForMapView:(ADClusterMapView *)mapView;
 - (void)mapViewDidFinishClustering:(ADClusterMapView *)mapView;
+- (void)mapViewDidFinishAddingClusters:(ADClusterMapView *)mapView;
 @end
 
 @interface ADClusterMapView : MKMapView <MKMapViewDelegate>
