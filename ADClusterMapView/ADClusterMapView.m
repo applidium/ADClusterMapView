@@ -48,6 +48,53 @@
     return self;
 }
 
+#pragma mark - MKMapView
+- (void)addAnnotation:(id<MKAnnotation>)annotation {
+    NSAssert(NO, @"Cannot be used for now");
+}
+
+- (void)addAnnotations:(NSArray *)annotations {
+    NSAssert(NO, @"Cannot be used for now");
+}
+
+- (void)removeAnnotation:(id<MKAnnotation>)annotation {
+    [self.clusterAnnotations removeObject:annotation];
+    [super removeAnnotation:annotation];
+}
+
+- (void)removeAnnotations:(NSArray<id<MKAnnotation>> *)annotations {
+    [self.clusterAnnotations removeObjectsInArray:annotations];
+    [super removeAnnotations:annotations];
+}
+
+- (void)selectAnnotation:(id<MKAnnotation>)annotation animated:(BOOL)animated {
+    [super selectAnnotation:[self clusterAnnotationForOriginalAnnotation:annotation] animated:animated];
+}
+
+#pragma mark - Getters
+- (NSArray *)displayedAnnotations {
+    return [self annotationsInMapRect:self.visibleMapRect].allObjects;
+}
+
+- (NSArray *)displayedClusterAnnotations {
+    return [self.displayedAnnotations filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self isKindOfClass: %@", [ADClusterAnnotation class]]];
+}
+
+#pragma mark - Methods
+- (ADClusterAnnotation *)clusterAnnotationForOriginalAnnotation:(id<MKAnnotation>)annotation {
+    NSAssert(![annotation isKindOfClass:[ADClusterAnnotation class]], @"Unexpected annotation!");
+    for (ADClusterAnnotation * clusterAnnotation in self.displayedAnnotations) {
+        if ([clusterAnnotation.cluster isRootClusterForAnnotation:annotation]) {
+            return clusterAnnotation;
+        }
+    }
+    return nil;
+}
+
+- (void)selectClusterAnnotation:(ADClusterAnnotation *)annotation animated:(BOOL)animated {
+    [super selectAnnotation:annotation animated:animated];
+}
+
 - (void)setAnnotations:(NSArray *)annotations {
     [self removeAnnotations:self.annotations];
     NSMutableArray * leafClusterAnnotations = [[NSMutableArray alloc] initWithCapacity:annotations.count];;
@@ -94,40 +141,6 @@
             }
         });
     });
-}
-
-- (void)addAnnotation:(id<MKAnnotation>)annotation {
-    NSAssert(NO, @"Cannot be used for now");
-}
-
-- (void)addAnnotations:(NSArray *)annotations {
-    NSAssert(NO, @"Cannot be used for now");
-}
-
-- (void)removeAnnotation:(id<MKAnnotation>)annotation {
-    [self.clusterAnnotations removeObject:annotation];
-    [super removeAnnotation:annotation];
-}
-
-- (void)removeAnnotations:(NSArray<id<MKAnnotation>> *)annotations {
-    [self.clusterAnnotations removeObjectsInArray:annotations];
-    [super removeAnnotations:annotations];
-}
-
-- (void)selectAnnotation:(id<MKAnnotation>)annotation animated:(BOOL)animated {
-    [super selectAnnotation:[self clusterAnnotationForOriginalAnnotation:annotation] animated:animated];
-}
-
-- (void)selectClusterAnnotation:(ADClusterAnnotation *)annotation animated:(BOOL)animated {
-    [super selectAnnotation:annotation animated:animated];
-}
-
-- (NSArray *)displayedAnnotations {
-    return [self annotationsInMapRect:self.visibleMapRect].allObjects;
-}
-
-- (NSArray *)displayedClusterAnnotations {
-    return [self.displayedAnnotations filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self isKindOfClass: %@", [ADClusterAnnotation class]]];
 }
 
 - (void)addNonClusteredAnnotation:(id<MKAnnotation>)annotation {
@@ -220,16 +233,6 @@
     if ([_secondaryDelegate respondsToSelector:@selector(mapView:didSelectAnnotationView:)]) {
         [_secondaryDelegate mapView:mapView didSelectAnnotationView:view];
     }
-}
-
-- (ADClusterAnnotation *)clusterAnnotationForOriginalAnnotation:(id<MKAnnotation>)annotation {
-    NSAssert(![annotation isKindOfClass:[ADClusterAnnotation class]], @"Unexpected annotation!");
-    for (ADClusterAnnotation * clusterAnnotation in self.displayedAnnotations) {
-        if ([clusterAnnotation.cluster isRootClusterForAnnotation:annotation]) {
-            return clusterAnnotation;
-        }
-    }
-    return nil;
 }
 
 #pragma mark - Private
