@@ -197,21 +197,18 @@
     if (![annotation isKindOfClass:[ADClusterAnnotation class]]) {
         if ([_secondaryDelegate respondsToSelector:@selector(mapView:viewForAnnotation:)]) {
             return [_secondaryDelegate mapView:self viewForAnnotation:annotation];
-        } else {
-            return nil;
         }
+        return nil;
 	}
     // only leaf clusters have annotations
-    if (((ADClusterAnnotation *)annotation).type == ADClusterAnnotationTypeLeaf || ![_secondaryDelegate respondsToSelector:@selector(mapView:viewForClusterAnnotation:)]) {
+    if (((ADClusterAnnotation *)annotation).type == ADClusterAnnotationTypeLeaf
+        || ![_secondaryDelegate respondsToSelector:@selector(mapView:viewForClusterAnnotation:)]) {
         if ([_secondaryDelegate respondsToSelector:@selector(mapView:viewForAnnotation:)]) {
             return [_secondaryDelegate mapView:self viewForAnnotation:annotation];
         }
-        else {
-            return nil;
-        }
-    } else {
-        return [_secondaryDelegate mapView:self viewForClusterAnnotation:annotation];
+        return nil;
     }
+    return [_secondaryDelegate mapView:self viewForClusterAnnotation:annotation];
 }
 
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated {
