@@ -349,11 +349,12 @@
 
 
 - (BOOL)_annotation:(ADClusterAnnotation *)annotation belongsToClusters:(NSArray *)clusters {
-    if (annotation.cluster) {
-        for (ADMapCluster * cluster in clusters) {
-            if ([cluster isAncestorOf:annotation.cluster] || [cluster isEqual:annotation.cluster]) {
-                return YES;
-            }
+    if (!annotation.cluster) {
+        return NO;
+    }
+    for (ADMapCluster * cluster in clusters) {
+        if ([cluster isAncestorOf:annotation.cluster] || [cluster isEqual:annotation.cluster]) {
+            return YES;
         }
     }
     return NO;
