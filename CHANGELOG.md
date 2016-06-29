@@ -1,3 +1,19 @@
+## 1.2.0 (6 July 2016)
+
+Features:
+
+  - Improved annotations management
+
+Bugfixes:
+
+  - Fix clustered annotation refreshing issue
+  - Fix displayed annotation on top left corner of map view
+
+Miscellaneous:
+
+  - Some coding style improvements
+  - Slight code clean up
+
 ## 1.1.1 (17 June 2016)
 
 Bugfixes:
