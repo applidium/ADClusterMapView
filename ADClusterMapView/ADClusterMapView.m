@@ -15,50 +15,96 @@
 @private
     __weak id <ADClusterMapViewDelegate>  _secondaryDelegate;
     ADMapCluster *                 _rootMapCluster;
-    NSMutableArray *               _singleAnnotationsPool;
-    NSMutableArray *               _clusterAnnotationsPool;
     BOOL                           _isAnimatingClusters;
     BOOL                           _shouldComputeClusters;
-    BOOL                           _isSettingAnnotations;
-    NSArray *                      _annotationsToBeSet;
-    NSArray *                      _originalAnnotations;
-    NSArray *                      _clusterAnnotations;
 }
-
-@end
-
-@interface ADClusterMapView (Private)
+@property (strong, nonatomic) NSMutableArray * clusterAnnotations;
+@property (strong, nonatomic) NSMutableArray * clusterAnnotationsToAddAfterAnimation;
+- (void)_initElements;
+- (ADClusterAnnotation *)_newAnnotationWithCluster:(ADMapCluster *)cluster ancestorAnnotation:(ADClusterAnnotation *)ancestor;
 - (void)_clusterInMapRect:(MKMapRect)rect;
 - (NSInteger)_numberOfClusters;
 - (BOOL)_annotation:(ADClusterAnnotation *)annotation belongsToClusters:(NSArray *)clusters;
+- (void)_handleClusterAnimationEnded;
+- (void)_addClusterAnnotations:(NSArray <id <MKAnnotation>> *)annotations;
+- (void)_addClusterAnnotation:(id <MKAnnotation>)annotation;
 @end
 
 @implementation ADClusterMapView
 
-- (void)setAnnotations:(NSArray *)annotations {
-    if (_isSettingAnnotations) {
-        // keep the annotations for setting them later
-        _annotationsToBeSet = annotations;
-        return;
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        [self _initElements];
     }
-    _originalAnnotations = annotations;
-    _isSettingAnnotations = YES;
-    [self removeAnnotations:_clusterAnnotations];
-    NSInteger numberOfAnnotationsInPool = 2 * [self _numberOfClusters]; // We manage a pool of annotations. In case we have N splits and N joins in a single animation we have to double up the actual number of annotations that belongs to the pool.
-    _singleAnnotationsPool = [[NSMutableArray alloc] initWithCapacity: numberOfAnnotationsInPool];
-    _clusterAnnotationsPool = [[NSMutableArray alloc] initWithCapacity: numberOfAnnotationsInPool];
-    for (int i = 0; i < numberOfAnnotationsInPool; i++) {
+    return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        [self _initElements];
+    }
+    return self;
+}
+
+#pragma mark - MKMapView
+- (void)addAnnotation:(id<MKAnnotation>)annotation {
+    NSAssert(NO, @"Cannot be used for now");
+}
+
+- (void)addAnnotations:(NSArray *)annotations {
+    NSAssert(NO, @"Cannot be used for now");
+}
+
+- (void)removeAnnotation:(id<MKAnnotation>)annotation {
+    [self.clusterAnnotations removeObject:annotation];
+    [super removeAnnotation:annotation];
+}
+
+- (void)removeAnnotations:(NSArray<id<MKAnnotation>> *)annotations {
+    [self.clusterAnnotations removeObjectsInArray:annotations];
+    [super removeAnnotations:annotations];
+}
+
+- (void)selectAnnotation:(id<MKAnnotation>)annotation animated:(BOOL)animated {
+    [super selectAnnotation:[self clusterAnnotationForOriginalAnnotation:annotation] animated:animated];
+}
+
+#pragma mark - Getters
+- (NSArray *)displayedAnnotations {
+    return [self annotationsInMapRect:self.visibleMapRect].allObjects;
+}
+
+- (NSArray *)displayedClusterAnnotations {
+    return [self.displayedAnnotations filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self isKindOfClass: %@", [ADClusterAnnotation class]]];
+}
+
+#pragma mark - Methods
+- (ADClusterAnnotation *)clusterAnnotationForOriginalAnnotation:(id<MKAnnotation>)annotation {
+    NSAssert(![annotation isKindOfClass:[ADClusterAnnotation class]], @"Unexpected annotation!");
+    for (ADClusterAnnotation * clusterAnnotation in self.displayedAnnotations) {
+        if ([clusterAnnotation.cluster isRootClusterForAnnotation:annotation]) {
+            return clusterAnnotation;
+        }
+    }
+    return nil;
+}
+
+- (void)selectClusterAnnotation:(ADClusterAnnotation *)annotation animated:(BOOL)animated {
+    [super selectAnnotation:annotation animated:animated];
+}
+
+- (void)setAnnotations:(NSArray *)annotations {
+    [self removeAnnotations:self.annotations];
+    NSMutableArray * leafClusterAnnotations = [[NSMutableArray alloc] initWithCapacity:annotations.count];;
+    for (int i = 0; i < annotations.count; i++) {
         ADClusterAnnotation * annotation = [[ADClusterAnnotation alloc] init];
         annotation.type = ADClusterAnnotationTypeLeaf;
-        [_singleAnnotationsPool addObject:annotation];
-        annotation = [[ADClusterAnnotation alloc] init];
-        annotation.type = ADClusterAnnotationTypeCluster;
-        [_clusterAnnotationsPool addObject:annotation];
+        annotation.coordinate = [annotations[i] coordinate];
+        [leafClusterAnnotations addObject:annotation];
     }
-    [super addAnnotations:_singleAnnotationsPool];
-    [super addAnnotations:_clusterAnnotationsPool];
-    _clusterAnnotations = [_singleAnnotationsPool arrayByAddingObjectsFromArray:_clusterAnnotationsPool];
-
+    [self _addClusterAnnotations:leafClusterAnnotations];
     double gamma = 1.0; // default value
     if ([_secondaryDelegate respondsToSelector:@selector(clusterDiscriminationPowerForMapView:)]) {
         gamma = [_secondaryDelegate clusterDiscriminationPowerForMapView:self];
@@ -68,6 +114,7 @@
     if ([_secondaryDelegate respondsToSelector:@selector(clusterTitleForMapView:)]) {
         clusterTitle = [_secondaryDelegate clusterTitleForMapView:self];
     }
+
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
         // use wrapper annotations that expose a MKMapPoint property instead of a CLLocationCoordinate2D property
         NSMutableArray * mapPointAnnotations = [[NSMutableArray alloc] initWithCapacity:annotations.count];
@@ -86,52 +133,14 @@
 
         dispatch_async(dispatch_get_main_queue(), ^{
             [self _clusterInMapRect:self.visibleMapRect];
+            NSPredicate * predicate = [NSPredicate predicateWithFormat:@"%K = nil", NSStringFromSelector(@selector(cluster))];
+            NSArray * annotationNotDisplayedAfterClustering = [self.clusterAnnotations filteredArrayUsingPredicate:predicate];
+            [self removeAnnotations:annotationNotDisplayedAfterClustering];
             if ([_secondaryDelegate respondsToSelector:@selector(mapViewDidFinishClustering:)]) {
                 [_secondaryDelegate mapViewDidFinishClustering:self];
             }
-            _isSettingAnnotations = NO;
-            if (_annotationsToBeSet) {
-                NSArray * annotations = _annotationsToBeSet;
-                _annotationsToBeSet = nil;
-                [self setAnnotations:annotations];
-            }
         });
     });
-}
-
-- (void)addAnnotation:(id<MKAnnotation>)annotation {
-    NSAssert(FALSE, @"Unsupported method call in ADClusterMapView instance! Please call setAnnotations: instead.");
-}
-
-- (void)addAnnotations:(NSArray *)annotations {
-    NSAssert(FALSE, @"Unsupported method call in ADClusterMapView instance! Please call setAnnotations: instead.");
-}
-
-- (void)selectAnnotation:(id<MKAnnotation>)annotation animated:(BOOL)animated {
-    [super selectAnnotation:[self clusterAnnotationForOriginalAnnotation:annotation] animated:animated];
-}
-
-- (void)selectClusterAnnotation:(ADClusterAnnotation *)annotation animated:(BOOL)animated {
-    [super selectAnnotation:annotation animated:animated];
-}
-
-- (NSArray *)displayedAnnotations {
-    NSMutableArray * displayedAnnotations = [[NSMutableArray alloc] init];
-    for (ADClusterAnnotation * annotation in [_singleAnnotationsPool arrayByAddingObjectsFromArray:_clusterAnnotationsPool]) {
-        NSAssert([annotation isKindOfClass:[ADClusterAnnotation class]], @"Unexpected annotation!");
-        if (annotation.coordinate.latitude != kADCoordinate2DOffscreen.latitude && annotation.coordinate.longitude != kADCoordinate2DOffscreen.longitude) {
-            [displayedAnnotations addObject:annotation];
-        }
-    }
-    return displayedAnnotations;
-}
-
-// careful, the implementation of the following method is slow
-- (NSArray *)annotations {
-    NSArray * otherAnnotations = [[super annotations] filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
-        return  ![evaluatedObject isKindOfClass: [ADClusterAnnotation class]];
-    }]];
-    return [_originalAnnotations arrayByAddingObjectsFromArray:otherAnnotations];
 }
 
 - (void)addNonClusteredAnnotation:(id<MKAnnotation>)annotation {
@@ -183,45 +192,23 @@
     }
 }
 
-- (void)animationDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context {
-    for (ADClusterAnnotation * annotation in _clusterAnnotations) {
-        if ([annotation isKindOfClass:[ADClusterAnnotation class]]) {
-            if (annotation.shouldBeRemovedAfterAnimation) {
-                [annotation reset];
-            }
-            annotation.shouldBeRemovedAfterAnimation = NO;
-        }
-    }
-    _isAnimatingClusters = NO;
-    if (_shouldComputeClusters) { // do one more computation if the user moved the map while animating
-        _shouldComputeClusters = NO;
-        [self _clusterInMapRect:self.visibleMapRect];
-    }
-    if ([_secondaryDelegate respondsToSelector:@selector(clusterAnimationDidStopForMapView:)]) {
-        [_secondaryDelegate clusterAnimationDidStopForMapView:self];
-    }
-}
-
 #pragma mark - MKMapViewDelegate
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation {
     if (![annotation isKindOfClass:[ADClusterAnnotation class]]) {
         if ([_secondaryDelegate respondsToSelector:@selector(mapView:viewForAnnotation:)]) {
             return [_secondaryDelegate mapView:self viewForAnnotation:annotation];
-        } else {
-            return nil;
         }
+        return nil;
 	}
     // only leaf clusters have annotations
-    if (((ADClusterAnnotation *)annotation).type == ADClusterAnnotationTypeLeaf || ![_secondaryDelegate respondsToSelector:@selector(mapView:viewForClusterAnnotation:)]) {
+    if (((ADClusterAnnotation *)annotation).type == ADClusterAnnotationTypeLeaf
+        || ![_secondaryDelegate respondsToSelector:@selector(mapView:viewForClusterAnnotation:)]) {
         if ([_secondaryDelegate respondsToSelector:@selector(mapView:viewForAnnotation:)]) {
             return [_secondaryDelegate mapView:self viewForAnnotation:annotation];
         }
-        else {
-            return nil;
-        }
-    } else {
-        return [_secondaryDelegate mapView:self viewForClusterAnnotation:annotation];
+        return nil;
     }
+    return [_secondaryDelegate mapView:self viewForClusterAnnotation:annotation];
 }
 
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated {
@@ -245,145 +232,98 @@
     }
 }
 
-- (ADClusterAnnotation *)clusterAnnotationForOriginalAnnotation:(id<MKAnnotation>)annotation {
-    NSAssert(![annotation isKindOfClass:[ADClusterAnnotation class]], @"Unexpected annotation!");
-    for (ADClusterAnnotation * clusterAnnotation in self.displayedAnnotations) {
-        if ([clusterAnnotation.cluster isRootClusterForAnnotation:annotation]) {
-            return clusterAnnotation;
-        }
-    }
-    return nil;
+#pragma mark - Private
+- (void)_initElements {
+    _clusterAnnotations = [[NSMutableArray alloc] init];
+    _clusterAnnotationsToAddAfterAnimation = [[NSMutableArray alloc] init];
 }
-@end
 
-@implementation ADClusterMapView (Private)
+-(ADClusterAnnotation *)_newAnnotationWithCluster:(ADMapCluster *)cluster ancestorAnnotation:(ADClusterAnnotation *)ancestor {
+    ADClusterAnnotation * annotation = [[ADClusterAnnotation alloc] init];
+    annotation.type = (cluster.numberOfChildren == 1) ? ADClusterAnnotationTypeLeaf : ADClusterAnnotationTypeCluster;
+    annotation.cluster = cluster;
+    annotation.coordinate = (ancestor) ? ancestor.coordinate : cluster.clusterCoordinate;
+    return annotation;
+}
+
 - (void)_clusterInMapRect:(MKMapRect)rect {
     NSArray * clustersToShowOnMap = [_rootMapCluster find:[self _numberOfClusters] childrenInMapRect:rect];
 
-    // Build an array with available annotations (eg. not moving or not staying at the same place on the map)
-    NSMutableArray * availableSingleAnnotations = [[NSMutableArray alloc] init];
-    NSMutableArray * availableClusterAnnotations = [[NSMutableArray alloc] init];
-    NSMutableArray * selfDividingSingleAnnotations = [[NSMutableArray alloc] init];
-    NSMutableArray * selfDividingClusterAnnotations = [[NSMutableArray alloc] init];
-    for (ADClusterAnnotation * annotation in [_singleAnnotationsPool arrayByAddingObjectsFromArray:_clusterAnnotationsPool]) {
-        BOOL isAncestor = NO;
-        if (annotation.cluster) { // if there is a cluster associated to the current annotation
-            for (ADMapCluster * cluster in clustersToShowOnMap) { // is the current annotation cluster an ancestor of one of the clustersToShowOnMap?
-                if ([annotation.cluster isAncestorOf:cluster]) {
-                    if (cluster.annotation) {
-                        [selfDividingSingleAnnotations addObject:annotation];
-                    } else {
-                        [selfDividingClusterAnnotations addObject:annotation];
-                    }
-                    isAncestor = YES;
-                    break;
-                }
-            }
+    NSMutableArray * annotationToRemoveFromMap = [[NSMutableArray alloc] init];
+    NSMutableArray * annotationToAddToMap = [[NSMutableArray alloc] init];
+    NSMutableArray * selfDividingAnnotations = [[NSMutableArray alloc] init];
+    NSArray * displayedAnnotation = self.displayedClusterAnnotations;
+    for (ADClusterAnnotation * annotation in displayedAnnotation) {
+        if ([annotation isKindOfClass:[MKUserLocation class]] || !annotation.cluster) {
+            continue;
         }
-        if (!isAncestor) { // if not an ancestor
-            if (![self _annotation:annotation belongsToClusters:clustersToShowOnMap]) { // check if this annotation will be used later. If not, it is flagged as "available".
-                if (annotation.type == ADClusterAnnotationTypeLeaf) {
-                    [availableSingleAnnotations addObject:annotation];
-                } else {
-                    [availableClusterAnnotations addObject:annotation];
-                }
+        BOOL isAncestor = NO;
+        for (ADMapCluster * cluster in clustersToShowOnMap) { // is the current annotation cluster an ancestor of one of the clustersToShowOnMap?
+            if (![annotation.cluster isAncestorOf:cluster]) {
+                continue;
             }
+            [selfDividingAnnotations addObject:annotation];
+            isAncestor = YES;
+            break;
         }
     }
 
     // Let ancestor annotations divide themselves
-    for (ADClusterAnnotation * annotation in [selfDividingSingleAnnotations arrayByAddingObjectsFromArray:selfDividingClusterAnnotations]) {
-        BOOL willNeedAnAvailableAnnotation = NO;
-        CLLocationCoordinate2D originalAnnotationCoordinate = annotation.coordinate;
+    for (ADClusterAnnotation * annotation in selfDividingAnnotations) {
         ADMapCluster * originalAnnotationCluster = annotation.cluster;
         for (ADMapCluster * cluster in clustersToShowOnMap) {
-            if ([originalAnnotationCluster isAncestorOf:cluster]) {
-                if (!willNeedAnAvailableAnnotation) {
-                    willNeedAnAvailableAnnotation = YES;
-                    annotation.cluster = cluster;
-                    if (cluster.annotation) { // replace this annotation by a leaf one
-                        NSAssert(annotation.type != ADClusterAnnotationTypeLeaf, @"Inconsistent annotation type!");
-                        ADClusterAnnotation * singleAnnotation = [availableSingleAnnotations lastObject];
-                        [availableSingleAnnotations removeLastObject];
-                        singleAnnotation.cluster = annotation.cluster;
-                        singleAnnotation.coordinate = originalAnnotationCoordinate;
-                        [availableClusterAnnotations addObject:annotation];
-                    }
-                } else {
-                    ADClusterAnnotation * availableAnnotation = nil;
-                    if (cluster.annotation) {
-                        availableAnnotation = [availableSingleAnnotations lastObject];
-                        [availableSingleAnnotations removeLastObject];
-                    } else {
-                        availableAnnotation = [availableClusterAnnotations lastObject];
-                        [availableClusterAnnotations removeLastObject];
-                    }
-                    availableAnnotation.cluster = cluster;
-                    availableAnnotation.coordinate = originalAnnotationCoordinate;
-                }
+            if (![originalAnnotationCluster isAncestorOf:cluster]) {
+                continue;
             }
+            ADClusterAnnotation * newAnnotation = [self _newAnnotationWithCluster:cluster ancestorAnnotation:annotation];
+            [annotationToRemoveFromMap addObject:annotation];
+            [annotationToAddToMap addObject:newAnnotation];
         }
     }
 
     // Converge annotations to ancestor clusters
     for (ADMapCluster * cluster in clustersToShowOnMap) {
         BOOL didAlreadyFindAChild = NO;
-        for (__strong ADClusterAnnotation * annotation in _clusterAnnotations) {
-            if (![annotation isKindOfClass:[MKUserLocation class]]) {
-                if (annotation.cluster && ![annotation isKindOfClass:[MKUserLocation class]]) {
-                    if ([cluster isAncestorOf:annotation.cluster]) {
-                        if (annotation.type == ADClusterAnnotationTypeLeaf) { // replace this annotation by a cluster one
-                            ADClusterAnnotation * clusterAnnotation = [availableClusterAnnotations lastObject];
-                            [availableClusterAnnotations removeLastObject];
-                            clusterAnnotation.cluster = cluster;
-                            // Setting the coordinate makes us call viewForAnnotation: right away, so make sure the cluster is set
-                            clusterAnnotation.coordinate = annotation.coordinate;
-                            [availableSingleAnnotations addObject:annotation];
-                            annotation = clusterAnnotation;
-                        } else {
-                            annotation.cluster = cluster;
-                        }
-                        if (didAlreadyFindAChild) {
-                            annotation.shouldBeRemovedAfterAnimation = YES;
-                        }
-                        if (ADClusterCoordinate2DIsOffscreen(annotation.coordinate)) {
-                            annotation.coordinate = annotation.cluster.clusterCoordinate;
-                        }
-                        didAlreadyFindAChild = YES;
-                    }
-                }
+        for (__strong ADClusterAnnotation * annotation in displayedAnnotation) {
+            if ([annotation isKindOfClass:[MKUserLocation class]] || !annotation.cluster || ![cluster isAncestorOf:annotation.cluster]) {
+                continue;
+            }
+            if (!didAlreadyFindAChild) {
+                ADClusterAnnotation * newAnnotation = [[ADClusterAnnotation alloc] init];
+                newAnnotation.type = ADClusterAnnotationTypeCluster;
+                newAnnotation.cluster = cluster;
+                newAnnotation.coordinate = cluster.clusterCoordinate;
+                [self.clusterAnnotationsToAddAfterAnimation addObject:newAnnotation];
+            }
+            annotation.cluster = cluster;
+            annotation.shouldBeRemovedAfterAnimation = YES;
+            didAlreadyFindAChild = YES;
+        }
+    }
+
+    [self _addClusterAnnotations:annotationToAddToMap];
+    [self removeAnnotations:annotationToRemoveFromMap];
+    displayedAnnotation = self.displayedClusterAnnotations;
+    [UIView animateWithDuration:0.5f animations:^{
+        for (ADClusterAnnotation * annotation in displayedAnnotation) {
+            if ([annotation isKindOfClass:[MKUserLocation class]]) {
+                continue;
+            }
+            if (![annotation isKindOfClass:[MKUserLocation class]] && annotation.cluster) {
+                NSAssert(!ADClusterCoordinate2DIsOffscreen(annotation.coordinate), @"annotation.coordinate not valid! Can't animate from an invalid coordinate (inconsistent result)!");
+                annotation.coordinate = annotation.cluster.clusterCoordinate;
             }
         }
-    }
-    for (ADClusterAnnotation * annotation in availableSingleAnnotations) {
-        NSAssert(annotation.type == ADClusterAnnotationTypeLeaf, @"Inconsistent annotation type!");
-        if (annotation.cluster) { // This is here for performance reason (annotation reset causes the refresh of the annotation because of KVO)
-            [annotation reset];
-        }
-    }
-    for (ADClusterAnnotation * annotation in availableClusterAnnotations) {
-        NSAssert(annotation.type == ADClusterAnnotationTypeCluster, @"Inconsistent annotation type!");
-        if (annotation.cluster) {
-            [annotation reset];
-        }
-    }
-    [UIView beginAnimations:@"ADClusterMapViewAnimation" context:NULL];
-    [UIView setAnimationBeginsFromCurrentState:NO];
-    [UIView setAnimationDelegate:self];
-    [UIView setAnimationDuration:0.5f];
-    for (ADClusterAnnotation * annotation in _clusterAnnotations) {
-        if (![annotation isKindOfClass:[MKUserLocation class]] && annotation.cluster) {
-            NSAssert(!ADClusterCoordinate2DIsOffscreen(annotation.coordinate), @"annotation.coordinate not valid! Can't animate from an invalid coordinate (inconsistent result)!");
-            annotation.coordinate = annotation.cluster.clusterCoordinate;
-        }
-    }
-    [UIView commitAnimations];
+    } completion:^(BOOL finished) {
+        [self _handleClusterAnimationEnded];;
+    }];
 
 
     // Add not-yet-annotated clusters
+    annotationToAddToMap = [[NSMutableArray alloc] init];
     for (ADMapCluster * cluster in clustersToShowOnMap) {
         BOOL isAlreadyAnnotated = NO;
-        for (ADClusterAnnotation * annotation in _clusterAnnotations) {
+        for (ADClusterAnnotation * annotation in displayedAnnotation) {
             if (![annotation isKindOfClass:[MKUserLocation class]]) {
                 if ([cluster isEqual:annotation.cluster]) {
                     isAlreadyAnnotated = YES;
@@ -392,25 +332,11 @@
             }
         }
         if (!isAlreadyAnnotated) {
-            if (cluster.annotation) {
-                ((ADClusterAnnotation *)[availableSingleAnnotations lastObject]).cluster = cluster; // the order here is important: because of KVO, the cluster property must be set before the coordinate property (change of coordinate -> refresh of the view -> refresh of the title -> the cluster can't be nil)
-                ((ADClusterAnnotation *)[availableSingleAnnotations lastObject]).coordinate = cluster.clusterCoordinate;
-                [availableSingleAnnotations removeLastObject]; // update the availableAnnotations
-            } else {
-                ((ADClusterAnnotation *)[availableClusterAnnotations lastObject]).cluster = cluster; // the order here is important: because of KVO, the cluster property must be set before the coordinate property (change of coordinate -> refresh of the view -> refresh of the title -> the cluster can't be nil)
-                ((ADClusterAnnotation *)[availableClusterAnnotations lastObject]).coordinate = cluster.clusterCoordinate;
-                [availableClusterAnnotations removeLastObject]; // update the availableAnnotations
-            }
+            ADClusterAnnotation * newAnnotation = [self _newAnnotationWithCluster:cluster ancestorAnnotation:nil];
+            [annotationToAddToMap addObject:newAnnotation];
         }
     }
-    for (ADClusterAnnotation * annotation in availableSingleAnnotations) {
-        NSAssert(annotation.type == ADClusterAnnotationTypeLeaf, @"Inconsistent annotation type!");
-        [annotation reset];
-    }
-    for (ADClusterAnnotation * annotation in availableClusterAnnotations) {
-        NSAssert(annotation.type == ADClusterAnnotationTypeCluster, @"Inconsistent annotation type!");
-        [annotation reset];
-    }
+    [self _addClusterAnnotations:annotationToAddToMap];
 }
 
 - (NSInteger)_numberOfClusters {
@@ -423,14 +349,50 @@
 
 
 - (BOOL)_annotation:(ADClusterAnnotation *)annotation belongsToClusters:(NSArray *)clusters {
-    if (annotation.cluster) {
-        for (ADMapCluster * cluster in clusters) {
-            if ([cluster isAncestorOf:annotation.cluster] || [cluster isEqual:annotation.cluster]) {
-                return YES;
-            }
+    if (!annotation.cluster) {
+        return NO;
+    }
+    for (ADMapCluster * cluster in clusters) {
+        if ([cluster isAncestorOf:annotation.cluster] || [cluster isEqual:annotation.cluster]) {
+            return YES;
         }
     }
     return NO;
+}
+
+- (void)_handleClusterAnimationEnded {
+    NSMutableArray * annotationToRemove = [[NSMutableArray alloc] init];;
+    for (ADClusterAnnotation * annotation in self.annotations) {
+        if ([annotation isKindOfClass:[MKUserLocation class]]) {
+            continue;
+        }
+        if ([annotation isKindOfClass:[ADClusterAnnotation class]]) {
+            if (annotation.shouldBeRemovedAfterAnimation) {
+                [annotationToRemove addObject:annotation];
+            }
+        }
+    }
+    [self removeAnnotations:annotationToRemove];
+    [self _addClusterAnnotations:self.clusterAnnotationsToAddAfterAnimation];
+    [self.clusterAnnotationsToAddAfterAnimation removeAllObjects];
+    _isAnimatingClusters = NO;
+    if (_shouldComputeClusters) { // do one more computation if the user moved the map while animating
+        _shouldComputeClusters = NO;
+        [self _clusterInMapRect:self.visibleMapRect];
+    }
+    if ([_secondaryDelegate respondsToSelector:@selector(clusterAnimationDidStopForMapView:)]) {
+        [_secondaryDelegate clusterAnimationDidStopForMapView:self];
+    }
+}
+
+- (void)_addClusterAnnotation:(id<MKAnnotation>)annotation {
+    [self.clusterAnnotations addObject:annotation];
+    [super addAnnotation:annotation];
+}
+
+- (void)_addClusterAnnotations:(NSArray<id<MKAnnotation>> *)annotations {
+    [self.clusterAnnotations addObjectsFromArray:annotations];
+    [super addAnnotations:annotations];
 }
 
 @end
