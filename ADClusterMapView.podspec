@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = 'ADClusterMapView'
-  spec.version      = '1.2.0'
+  spec.version      = '1.3.0'
   spec.authors      = 'Applidium'
   spec.license      = { :type => 'BSD' }
   spec.homepage     = 'http://applidium.github.io/ADClusterMapView/'
