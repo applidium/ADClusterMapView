@@ -1,3 +1,13 @@
+## 1.3.0 (20 September 2016)
+
+Features:
+
+  - User can select a single annotation using MKMapView `selectAnnotation:animated:` method
+
+Bugfixes:
+
+  - Fix a crash when ADClusterMapView `clusterAnnotationForOriginalAnnotation:` method was called
+
 ## 1.2.0 (6 July 2016)
 
 Features:

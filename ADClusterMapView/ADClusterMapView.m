@@ -68,7 +68,10 @@
 }
 
 - (void)selectAnnotation:(id<MKAnnotation>)annotation animated:(BOOL)animated {
-    [super selectAnnotation:[self clusterAnnotationForOriginalAnnotation:annotation] animated:animated];
+    ADClusterAnnotation * clusterAnnotation = [self clusterAnnotationForOriginalAnnotation:annotation];
+    // If annotation is not part of a cluster then it should be a single annotation that is selectable
+    id<MKAnnotation> annotationToSelect = clusterAnnotation ?: annotation;
+    [super selectAnnotation:annotationToSelect animated:animated];
 }
 
 #pragma mark - Getters
@@ -83,7 +86,7 @@
 #pragma mark - Methods
 - (ADClusterAnnotation *)clusterAnnotationForOriginalAnnotation:(id<MKAnnotation>)annotation {
     NSAssert(![annotation isKindOfClass:[ADClusterAnnotation class]], @"Unexpected annotation!");
-    for (ADClusterAnnotation * clusterAnnotation in self.displayedAnnotations) {
+    for (ADClusterAnnotation * clusterAnnotation in self.displayedClusterAnnotations) {
         if ([clusterAnnotation.cluster isRootClusterForAnnotation:annotation]) {
             return clusterAnnotation;
         }

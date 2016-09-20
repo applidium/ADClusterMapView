@@ -25,7 +25,7 @@
 
 @interface ADClusterMapView : MKMapView <MKMapViewDelegate>
 @property (nonatomic, readonly) NSArray * displayedAnnotations;
-@property (nonatomic, readonly) NSArray * displayedClusterAnnotations;
+@property (nonatomic, readonly) NSArray <ADClusterAnnotation *>* displayedClusterAnnotations;
 - (void)addAnnotation:(id<MKAnnotation>)annotation NS_UNAVAILABLE;
 - (void)addAnnotations:(NSArray<id<MKAnnotation>> *)annotations NS_UNAVAILABLE;
 - (ADClusterAnnotation *)clusterAnnotationForOriginalAnnotation:(id<MKAnnotation>)annotation; // returns the ADClusterAnnotation instance containing the annotation originally added.
