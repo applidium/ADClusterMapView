@@ -83,7 +83,7 @@
 #pragma mark - Methods
 - (ADClusterAnnotation *)clusterAnnotationForOriginalAnnotation:(id<MKAnnotation>)annotation {
     NSAssert(![annotation isKindOfClass:[ADClusterAnnotation class]], @"Unexpected annotation!");
-    for (ADClusterAnnotation * clusterAnnotation in self.displayedAnnotations) {
+    for (ADClusterAnnotation * clusterAnnotation in self.displayedClusterAnnotations) {
         if ([clusterAnnotation.cluster isRootClusterForAnnotation:annotation]) {
             return clusterAnnotation;
         }
