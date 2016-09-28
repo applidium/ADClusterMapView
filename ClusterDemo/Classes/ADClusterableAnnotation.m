@@ -16,7 +16,7 @@
 
 @implementation ADClusterableAnnotation
 
-- (id)initWithDictionary:(NSDictionary *)dictionary {
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary {
     self = [super init];
     if (self) {
         _name = [dictionary objectForKey:@"name"];

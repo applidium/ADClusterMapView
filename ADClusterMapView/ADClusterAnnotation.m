@@ -7,7 +7,7 @@
 //
 
 #import "ADClusterAnnotation.h"
-
+#import "ADMapCluster.h"
 
 BOOL ADClusterCoordinate2DIsOffscreen(CLLocationCoordinate2D coord) {
     return (coord.latitude == kADCoordinate2DOffscreen.latitude && coord.longitude == kADCoordinate2DOffscreen.longitude);
@@ -16,9 +16,8 @@ BOOL ADClusterCoordinate2DIsOffscreen(CLLocationCoordinate2D coord) {
 @implementation ADClusterAnnotation
 @synthesize cluster = _cluster;
 
-- (id)init {
-    self = [super init];
-    if (self) {
+- (nonnull instancetype)init {
+    if (self = [super init]) {
         _cluster = nil;
         self.coordinate = kADCoordinate2DOffscreen;
         _type = ADClusterAnnotationTypeUnknown;
@@ -27,7 +26,7 @@ BOOL ADClusterCoordinate2DIsOffscreen(CLLocationCoordinate2D coord) {
     return self;
 }
 
-- (void)setCluster:(ADMapCluster *)cluster {
+- (void)setCluster:(nullable ADMapCluster *)cluster {
     [self willChangeValueForKey:@"title"];
     [self willChangeValueForKey:@"subtitle"];
     _cluster = cluster;
@@ -35,15 +34,15 @@ BOOL ADClusterCoordinate2DIsOffscreen(CLLocationCoordinate2D coord) {
     [self didChangeValueForKey:@"title"];
 }
 
-- (ADMapCluster *)cluster {
+- (nullable ADMapCluster *)cluster {
     return _cluster;
 }
 
-- (NSString *)title {
+- (nullable NSString *)title {
     return self.cluster.title;
 }
 
-- (NSString *)subtitle {
+- (nullable NSString *)subtitle {
     return self.cluster.subtitle;
 }
 
@@ -52,7 +51,7 @@ BOOL ADClusterCoordinate2DIsOffscreen(CLLocationCoordinate2D coord) {
     self.coordinate = kADCoordinate2DOffscreen;
 }
 
-- (NSArray *)originalAnnotations {
+- (nullable NSArray<id<MKAnnotation>> *)originalAnnotations {
     NSAssert(self.cluster != nil, @"This annotation should have a cluster assigned!");
     return self.cluster.originalAnnotations;
 }
