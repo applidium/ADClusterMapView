@@ -8,22 +8,34 @@
 
 #import <Foundation/Foundation.h>
 #import <MapKit/MapKit.h>
-#import "ADMapPointAnnotation.h"
+
+@class ADMapPointAnnotation;
 
 @interface ADMapCluster : NSObject
 @property (nonatomic) CLLocationCoordinate2D clusterCoordinate;
-@property (weak, nonatomic, readonly) NSString * title;
-@property (weak, nonatomic, readonly) NSString * subtitle;
-@property (nonatomic, strong) ADMapPointAnnotation * annotation;
-@property (weak, nonatomic, readonly) NSMutableArray * originalAnnotations;
+@property (weak, nonatomic, readonly, nullable) NSString * title;
+@property (weak, nonatomic, readonly, nullable) NSString * subtitle;
+@property (nonatomic, strong, nullable) ADMapPointAnnotation * annotation;
+@property (nonatomic, readonly, nonnull) NSMutableArray<id<MKAnnotation>> * originalAnnotations;
 @property (nonatomic, readonly) NSInteger depth;
 @property (nonatomic, assign) BOOL showSubtitle;
-- (id)initWithAnnotations:(NSArray *)annotations atDepth:(NSInteger)depth inMapRect:(MKMapRect)mapRect gamma:(double)gamma clusterTitle:(NSString *)clusterTitle showSubtitle:(BOOL)showSubtitle;
-+ (ADMapCluster *)rootClusterForAnnotations:(NSArray *)annotations gamma:(double)gamma clusterTitle:(NSString *)clusterTitle showSubtitle:(BOOL)showSubtitle;
-- (NSArray *)find:(NSInteger)N childrenInMapRect:(MKMapRect)mapRect;
-- (NSArray *)children;
-- (BOOL)isAncestorOf:(ADMapCluster *)mapCluster;
-- (BOOL)isRootClusterForAnnotation:(id<MKAnnotation>)annotation;
+
+- (nonnull instancetype)initWithAnnotations:(nullable NSArray<ADMapPointAnnotation *> *)annotations
+                                    atDepth:(NSInteger)depth
+                                  inMapRect:(MKMapRect)mapRect
+                                      gamma:(double)gamma
+                               clusterTitle:(nullable NSString *)clusterTitle
+                               showSubtitle:(BOOL)showSubtitle;
++ (nonnull ADMapCluster *)rootClusterForAnnotations:(nonnull NSArray<ADMapPointAnnotation *> *)annotations
+                                              gamma:(double)gamma
+                                       clusterTitle:(nullable NSString *)clusterTitle
+                                       showSubtitle:(BOOL)showSubtitle;
+- (nonnull NSArray<ADMapCluster *> *)find:(NSInteger)N
+                        childrenInMapRect:(MKMapRect)mapRect;
+- (nonnull NSArray<ADMapCluster *> *)children;
+- (BOOL)isAncestorOf:(nonnull ADMapCluster *)mapCluster;
+- (BOOL)isRootClusterForAnnotation:(nonnull id<MKAnnotation>)annotation;
 - (NSInteger)numberOfChildren;
-- (NSArray *)namesOfChildren;
+- (nonnull NSArray<NSString *> *)namesOfChildren;
+
 @end

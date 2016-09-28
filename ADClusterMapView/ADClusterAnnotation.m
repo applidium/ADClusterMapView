@@ -7,7 +7,7 @@
 //
 
 #import "ADClusterAnnotation.h"
-
+#import "ADMapCluster.h"
 
 BOOL ADClusterCoordinate2DIsOffscreen(CLLocationCoordinate2D coord) {
     return (coord.latitude == kADCoordinate2DOffscreen.latitude && coord.longitude == kADCoordinate2DOffscreen.longitude);
@@ -52,7 +52,7 @@ BOOL ADClusterCoordinate2DIsOffscreen(CLLocationCoordinate2D coord) {
     self.coordinate = kADCoordinate2DOffscreen;
 }
 
-- (NSArray *)originalAnnotations {
+- (NSArray<id<MKAnnotation>> *)originalAnnotations {
     NSAssert(self.cluster != nil, @"This annotation should have a cluster assigned!");
     return self.cluster.originalAnnotations;
 }
