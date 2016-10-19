@@ -8,31 +8,32 @@
 
 #import <Foundation/Foundation.h>
 #import <MapKit/MapKit.h>
-#import "ADMapCluster.h"
-#import "ADClusterAnnotation.h"
 
+@class ADClusterAnnotation;
 @class ADClusterMapView;
+
 @protocol ADClusterMapViewDelegate <MKMapViewDelegate>
 @optional
-- (NSInteger)numberOfClustersInMapView:(ADClusterMapView *)mapView; // default: 32
-- (MKAnnotationView *)mapView:(ADClusterMapView *)mapView viewForClusterAnnotation:(id <MKAnnotation>)annotation; // default: same as returned by mapView:viewForAnnotation:
-- (BOOL)shouldShowSubtitleForClusterAnnotationsInMapView:(ADClusterMapView *)mapView; // default: YES
-- (double)clusterDiscriminationPowerForMapView:(ADClusterMapView *)mapView; // This parameter emphasize the discrimination of annotations which are far away from the center of mass. default: 1.0 (no discrimination applied)
-- (NSString *)clusterTitleForMapView:(ADClusterMapView *)mapView; // default : @"%d elements"
-- (void)clusterAnimationDidStopForMapView:(ADClusterMapView *)mapView;
-- (void)mapViewDidFinishClustering:(ADClusterMapView *)mapView;
+- (NSInteger)numberOfClustersInMapView:(nonnull ADClusterMapView *)mapView; // default: 32
+- (nonnull MKAnnotationView *)mapView:(nonnull ADClusterMapView *)mapView viewForClusterAnnotation:(nonnull id <MKAnnotation>)annotation; // default: same as returned by mapView:viewForAnnotation:
+- (BOOL)shouldShowSubtitleForClusterAnnotationsInMapView:(nonnull ADClusterMapView *)mapView; // default: YES
+- (double)clusterDiscriminationPowerForMapView:(nonnull ADClusterMapView *)mapView; // This parameter emphasize the discrimination of annotations which are far away from the center of mass. default: 1.0 (no discrimination applied)
+- (nullable NSString *)clusterTitleForMapView:(nonnull ADClusterMapView *)mapView; // default : @"%d elements"
+- (void)clusterAnimationDidStopForMapView:(nonnull ADClusterMapView *)mapView;
+- (void)mapViewDidFinishClustering:(nonnull ADClusterMapView *)mapView;
 @end
 
 @interface ADClusterMapView : MKMapView <MKMapViewDelegate>
-@property (nonatomic, readonly) NSArray * displayedAnnotations;
-@property (nonatomic, readonly) NSArray <ADClusterAnnotation *>* displayedClusterAnnotations;
-- (void)addAnnotation:(id<MKAnnotation>)annotation NS_UNAVAILABLE;
-- (void)addAnnotations:(NSArray<id<MKAnnotation>> *)annotations NS_UNAVAILABLE;
-- (ADClusterAnnotation *)clusterAnnotationForOriginalAnnotation:(id<MKAnnotation>)annotation; // returns the ADClusterAnnotation instance containing the annotation originally added.
-- (void)selectClusterAnnotation:(ADClusterAnnotation *)annotation animated:(BOOL)animated;
-- (void)setAnnotations:(NSArray *)annotations; // entry point for the annotations that you want to cluster
-- (void)addNonClusteredAnnotation:(id<MKAnnotation>)annotation;
-- (void)addNonClusteredAnnotations:(NSArray *)annotations;
-- (void)removeNonClusteredAnnotation:(id<MKAnnotation>)annotation;
-- (void)removeNonClusteredAnnotations:(NSArray *)annotations;
+@property (nonatomic, readonly, nonnull) NSArray<id<MKAnnotation>> * displayedAnnotations;
+@property (nonatomic, readonly, nonnull) NSArray<ADClusterAnnotation *> * displayedClusterAnnotations;
+
+- (void)addAnnotation:(nonnull id<MKAnnotation>)annotation NS_UNAVAILABLE;
+- (void)addAnnotations:(nonnull NSArray<id<MKAnnotation>> *)annotations NS_UNAVAILABLE;
+- (nullable ADClusterAnnotation *)clusterAnnotationForOriginalAnnotation:(nonnull id<MKAnnotation>)annotation; // returns the ADClusterAnnotation instance containing the annotation originally added.
+- (void)selectClusterAnnotation:(nonnull ADClusterAnnotation *)annotation animated:(BOOL)animated;
+- (void)setAnnotations:(nullable NSArray<id<MKAnnotation>> *)annotations; // entry point for the annotations that you want to cluster
+- (void)addNonClusteredAnnotation:(nonnull id<MKAnnotation>)annotation;
+- (void)addNonClusteredAnnotations:(nonnull NSArray<id<MKAnnotation>> *)annotations;
+- (void)removeNonClusteredAnnotation:(nonnull id<MKAnnotation>)annotation;
+- (void)removeNonClusteredAnnotations:(nonnull NSArray<id<MKAnnotation>> *)annotations;
 @end

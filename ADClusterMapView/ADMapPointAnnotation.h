@@ -10,6 +10,6 @@
 #import <MapKit/MapKit.h>
 @interface ADMapPointAnnotation : NSObject
 @property (nonatomic, readonly) MKMapPoint mapPoint;
-@property (nonatomic, readonly) id<MKAnnotation> annotation;
-- (id)initWithAnnotation:(id<MKAnnotation>)annotation;
+@property (nonatomic, readonly, nonnull) id<MKAnnotation> annotation;
+- (nonnull instancetype)initWithAnnotation:(nonnull id<MKAnnotation>)annotation;
 @end
