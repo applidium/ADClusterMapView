@@ -1,3 +1,15 @@
+## 1.4.0 (19 October 2016)
+
+Features:
+
+  - Added nullability annotations for better Swift support
+  - Added missing items typing in collections
+
+Miscellaneous:
+
+  - Slightly reduced header imports
+  - Small code readability improvements
+
 ## 1.3.0 (20 September 2016)
 
 Features:
