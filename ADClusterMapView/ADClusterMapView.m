@@ -12,6 +12,9 @@
 #import "ADMapCluster.h"
 #import "ADMapPointAnnotation.h"
 
+
+const static CGFloat kDefaultGamma = 1.0f;
+
 @interface ADClusterMapView () {
 @private
     __weak id <ADClusterMapViewDelegate>  _secondaryDelegate;
@@ -23,12 +26,14 @@
 @property (strong, nonatomic) NSMutableArray * clusterAnnotationsToAddAfterAnimation;
 - (void)_initElements;
 - (ADClusterAnnotation *)_newAnnotationWithCluster:(ADMapCluster *)cluster ancestorAnnotation:(ADClusterAnnotation *)ancestor;
-- (void)_clusterInMapRect:(MKMapRect)rect;
 - (NSInteger)_numberOfClusters;
+- (NSMutableArray<ADClusterAnnotation *> *)_leafAnnotationsFromAnnotations:(NSArray<id<MKAnnotation>> *)annotations;
+- (void)_clusterDisplayedClusterAnnotationsInMapRect:(MKMapRect)rect;
+- (void)_clusterAnnotations:(NSArray<id<MKAnnotation>> *)annotations inMapRect:(MKMapRect)rect;
 - (BOOL)_annotation:(ADClusterAnnotation *)annotation belongsToClusters:(NSArray *)clusters;
 - (void)_handleClusterAnimationEnded;
-- (void)_addClusterAnnotations:(NSArray <id <MKAnnotation>> *)annotations;
 - (void)_addClusterAnnotation:(id <MKAnnotation>)annotation;
+- (void)_addClusterAnnotations:(NSArray <id <MKAnnotation>> *)annotations;
 @end
 
 @implementation ADClusterMapView
@@ -101,18 +106,10 @@
 
 - (void)setAnnotations:(NSArray<id<MKAnnotation>> *)annotations {
     [self removeAnnotations:self.annotations];
-    NSMutableArray<id<MKAnnotation>> * leafClusterAnnotations = [[NSMutableArray alloc] initWithCapacity:annotations.count];
+    NSMutableArray<id<MKAnnotation>> * leafClusterAnnotations = [self _leafAnnotationsFromAnnotations:annotations];
+    [self.clusterAnnotations addObjectsFromArray:leafClusterAnnotations];
 
-    for (NSInteger i = 0; i < annotations.count; i++) {
-        ADClusterAnnotation * annotation = [[ADClusterAnnotation alloc] init];
-        annotation.type = ADClusterAnnotationTypeLeaf;
-        annotation.coordinate = [annotations[i] coordinate];
-        [leafClusterAnnotations addObject:annotation];
-    }
-
-    [self _addClusterAnnotations:leafClusterAnnotations];
-    double gamma = 1.0; // default value
-
+    double gamma = kDefaultGamma;
     if ([_secondaryDelegate respondsToSelector:@selector(clusterDiscriminationPowerForMapView:)]) {
         gamma = [_secondaryDelegate clusterDiscriminationPowerForMapView:self];
     }
@@ -120,6 +117,12 @@
     NSString * clusterTitle = @"%d elements";
     if ([_secondaryDelegate respondsToSelector:@selector(clusterTitleForMapView:)]) {
         clusterTitle = [_secondaryDelegate clusterTitleForMapView:self];
+    }
+
+    // Setting visibility of cluster annotations subtitle (defaults to YES)
+    BOOL shouldShowSubtitle = YES;
+    if ([_secondaryDelegate respondsToSelector:@selector(shouldShowSubtitleForClusterAnnotationsInMapView:)]) {
+        shouldShowSubtitle = [_secondaryDelegate shouldShowSubtitleForClusterAnnotationsInMapView:self];
     }
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
@@ -130,16 +133,10 @@
             [mapPointAnnotations addObject:mapPointAnnotation];
         }
 
-        // Setting visibility of cluster annotations subtitle (defaults to YES)
-        BOOL shouldShowSubtitle = YES;
-        if ([_secondaryDelegate respondsToSelector:@selector(shouldShowSubtitleForClusterAnnotationsInMapView:)]) {
-            shouldShowSubtitle = [_secondaryDelegate shouldShowSubtitleForClusterAnnotationsInMapView:self];
-        }
-
         _rootMapCluster = [ADMapCluster rootClusterForAnnotations:mapPointAnnotations gamma:gamma clusterTitle:clusterTitle showSubtitle:shouldShowSubtitle];
 
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self _clusterInMapRect:self.visibleMapRect];
+            [self _clusterAnnotations:leafClusterAnnotations inMapRect:self.visibleMapRect];
             NSPredicate * predicate = [NSPredicate predicateWithFormat:@"%K = nil", NSStringFromSelector(@selector(cluster))];
             NSArray * annotationNotDisplayedAfterClustering = [self.clusterAnnotations filteredArrayUsingPredicate:predicate];
             [self removeAnnotations:annotationNotDisplayedAfterClustering];
@@ -223,7 +220,7 @@
         _shouldComputeClusters = YES;
     } else {
         _isAnimatingClusters = YES;
-        [self _clusterInMapRect:self.visibleMapRect];
+        [self _clusterDisplayedClusterAnnotationsInMapRect:self.visibleMapRect];
     }
     for (id<MKAnnotation> annotation in [self selectedAnnotations]) {
         [self deselectAnnotation:annotation animated:YES];
@@ -245,7 +242,7 @@
     _clusterAnnotationsToAddAfterAnimation = [[NSMutableArray alloc] init];
 }
 
--(ADClusterAnnotation *)_newAnnotationWithCluster:(ADMapCluster *)cluster ancestorAnnotation:(ADClusterAnnotation *)ancestor {
+- (ADClusterAnnotation *)_newAnnotationWithCluster:(ADMapCluster *)cluster ancestorAnnotation:(ADClusterAnnotation *)ancestor {
     ADClusterAnnotation * annotation = [[ADClusterAnnotation alloc] init];
     annotation.type = (cluster.numberOfChildren == 1) ? ADClusterAnnotationTypeLeaf : ADClusterAnnotationTypeCluster;
     annotation.cluster = cluster;
@@ -253,13 +250,32 @@
     return annotation;
 }
 
-- (void)_clusterInMapRect:(MKMapRect)rect {
+- (NSInteger)_numberOfClusters {
+    NSInteger numberOfClusters = 32; // default value
+    if ([_secondaryDelegate respondsToSelector:@selector(numberOfClustersInMapView:)]) {
+        numberOfClusters = [_secondaryDelegate numberOfClustersInMapView:self];
+    }
+    return numberOfClusters;
+}
+
+- (NSMutableArray<ADClusterAnnotation *> *)_leafAnnotationsFromAnnotations:(NSArray<id<MKAnnotation>> *)annotations {
+    NSMutableArray<id<MKAnnotation>> * leafClusterAnnotations = [[NSMutableArray alloc] initWithCapacity:annotations.count];
+    for (id<MKAnnotation> originalAnotation in annotations) {
+        ADClusterAnnotation * annotation = [[ADClusterAnnotation alloc] init];
+        annotation.type = ADClusterAnnotationTypeLeaf;
+        annotation.coordinate = [originalAnotation coordinate];
+        [leafClusterAnnotations addObject:annotation];
+    }
+    return leafClusterAnnotations;
+}
+
+- (void)_clusterAnnotations:(NSArray<id<MKAnnotation>> *)annotations inMapRect:(MKMapRect)rect {
     NSArray * clustersToShowOnMap = [_rootMapCluster find:[self _numberOfClusters] childrenInMapRect:rect];
 
     NSMutableArray<ADClusterAnnotation *> * annotationToRemoveFromMap = [[NSMutableArray alloc] init];
     NSMutableArray<ADClusterAnnotation *> * annotationToAddToMap = [[NSMutableArray alloc] init];
     NSMutableArray<ADClusterAnnotation *> * selfDividingAnnotations = [[NSMutableArray alloc] init];
-    NSArray * displayedAnnotation = self.displayedClusterAnnotations;
+    NSMutableArray * displayedAnnotation = [NSMutableArray arrayWithArray:annotations];
 
     for (ADClusterAnnotation * annotation in displayedAnnotation) {
         if ([annotation isKindOfClass:[MKUserLocation class]] || !annotation.cluster) {
@@ -310,7 +326,8 @@
 
     [self _addClusterAnnotations:annotationToAddToMap];
     [self removeAnnotations:annotationToRemoveFromMap];
-    displayedAnnotation = self.displayedClusterAnnotations;
+    [displayedAnnotation addObjectsFromArray:annotationToAddToMap];
+    [displayedAnnotation removeObjectsInArray:annotationToRemoveFromMap];
 
     [UIView animateWithDuration:0.5f animations:^{
         for (ADClusterAnnotation * annotation in displayedAnnotation) {
@@ -348,14 +365,9 @@
     [self _addClusterAnnotations:annotationToAddToMap];
 }
 
-- (NSInteger)_numberOfClusters {
-    NSInteger numberOfClusters = 32; // default value
-    if ([_secondaryDelegate respondsToSelector:@selector(numberOfClustersInMapView:)]) {
-        numberOfClusters = [_secondaryDelegate numberOfClustersInMapView:self];
-    }
-    return numberOfClusters;
+- (void)_clusterDisplayedClusterAnnotationsInMapRect:(MKMapRect)rect {
+    [self _clusterAnnotations:self.displayedClusterAnnotations inMapRect:rect];
 }
-
 
 - (BOOL)_annotation:(nonnull ADClusterAnnotation *)annotation belongsToClusters:(NSArray<ADMapCluster *> *)clusters {
     if (!annotation.cluster) {
@@ -387,7 +399,7 @@
     _isAnimatingClusters = NO;
     if (_shouldComputeClusters) { // do one more computation if the user moved the map while animating
         _shouldComputeClusters = NO;
-        [self _clusterInMapRect:self.visibleMapRect];
+        [self _clusterDisplayedClusterAnnotationsInMapRect:self.visibleMapRect];
     }
     if ([_secondaryDelegate respondsToSelector:@selector(clusterAnimationDidStopForMapView:)]) {
         [_secondaryDelegate clusterAnimationDidStopForMapView:self];
