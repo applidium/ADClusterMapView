@@ -1,3 +1,9 @@
+## 1.5.0 (24 November 2016)
+
+Miscellaneous:
+
+  - Some code optimization regarding the way we first add and cluster annotations
+
 ## 1.4.0 (19 October 2016)
 
 Features:
